@@ -51,6 +51,40 @@ public final class Dinheiro {
         return new Dinheiro(this.valor.multiply(fator));
     }
 
+    /** Aplica um percentual (ex.: 2 = 2%). */
+    public Dinheiro percentual(BigDecimal percentual) {
+        return new Dinheiro(this.valor.multiply(percentual).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+    }
+
+    /** Fracao proporcional: valor x numerador / denominador (pro-rata). */
+    public Dinheiro proporcao(long numerador, long denominador) {
+        if (denominador <= 0) {
+            return ZERO;
+        }
+        return new Dinheiro(this.valor.multiply(BigDecimal.valueOf(numerador))
+                .divide(BigDecimal.valueOf(denominador), 2, RoundingMode.HALF_UP));
+    }
+
+    public Dinheiro minimo(Dinheiro outro) {
+        return this.valor.compareTo(outro.valor) <= 0 ? this : outro;
+    }
+
+    public Dinheiro naoNegativo() {
+        return valor.signum() < 0 ? ZERO : this;
+    }
+
+    public Dinheiro subtrair(Dinheiro outro) {
+        return new Dinheiro(this.valor.subtract(outro.valor));
+    }
+
+    public boolean maiorQue(Dinheiro outro) {
+        return this.valor.compareTo(outro.valor) > 0;
+    }
+
+    public boolean zero() {
+        return valor.signum() == 0;
+    }
+
     public boolean maiorOuIgual(Dinheiro outro) {
         return this.valor.compareTo(outro.valor) >= 0;
     }

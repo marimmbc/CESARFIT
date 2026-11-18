@@ -28,6 +28,36 @@ public class PagamentoEmbeddable {
     @Column(name = "data_estorno")
     private LocalDate dataDoEstorno;
 
+    @Column(name = "valor_estornado", precision = 10, scale = 2)
+    private BigDecimal valorEstornado;
+
+    @Column(name = "categoria_estorno", length = 30)
+    private String categoriaDoEstorno;
+
+    @Column(name = "multa", precision = 10, scale = 2)
+    private BigDecimal multa;
+
+    @Column(name = "juros", precision = 10, scale = 2)
+    private BigDecimal juros;
+
+    @Column(name = "parcelas")
+    private Integer parcelas;
+
+    @Column(name = "troco", precision = 10, scale = 2)
+    private BigDecimal troco;
+
+    public void definirEncargos(BigDecimal multa, BigDecimal juros, int parcelas, BigDecimal troco) {
+        this.multa = multa;
+        this.juros = juros;
+        this.parcelas = parcelas;
+        this.troco = troco;
+    }
+
+    public BigDecimal getMulta() { return multa; }
+    public BigDecimal getJuros() { return juros; }
+    public int getParcelas() { return parcelas == null ? 1 : parcelas; }
+    public BigDecimal getTroco() { return troco; }
+
     protected PagamentoEmbeddable() {
     }
 
@@ -38,11 +68,22 @@ public class PagamentoEmbeddable {
     }
 
     public PagamentoEmbeddable(BigDecimal valor, LocalDate data, String formaDePagamento,
-                               boolean estornado, String motivoDoEstorno, LocalDate dataDoEstorno) {
+                               boolean estornado, String motivoDoEstorno, LocalDate dataDoEstorno,
+                               BigDecimal valorEstornado, String categoriaDoEstorno) {
         this(valor, data, formaDePagamento);
         this.estornado = estornado;
         this.motivoDoEstorno = motivoDoEstorno;
         this.dataDoEstorno = dataDoEstorno;
+        this.valorEstornado = valorEstornado;
+        this.categoriaDoEstorno = categoriaDoEstorno;
+    }
+
+    public BigDecimal getValorEstornado() {
+        return valorEstornado;
+    }
+
+    public String getCategoriaDoEstorno() {
+        return categoriaDoEstorno;
     }
 
     public boolean isEstornado() {

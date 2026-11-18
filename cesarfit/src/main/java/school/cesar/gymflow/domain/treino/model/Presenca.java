@@ -11,7 +11,7 @@ public record Presenca(Long id, Long alunoId, LocalDate data) {
         if (alunoId == null) {
             throw new RegraDeNegocioException("Presenca exige um aluno");
         }
-        if (data == null || data.isAfter(LocalDate.now())) {
+        if (data == null) {
             throw new RegraDeNegocioException("Data da presenca invalida");
         }
     }

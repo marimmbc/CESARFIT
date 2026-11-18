@@ -23,6 +23,7 @@ import school.cesar.gymflow.application.usecase.MatricularAlunoUseCase;
 import school.cesar.gymflow.application.usecase.RegistrarPagamentoUseCase;
 import school.cesar.gymflow.application.usecase.RenovarMatriculaUseCase;
 import school.cesar.gymflow.application.usecase.ServicoDeConsultas;
+import school.cesar.gymflow.application.usecase.TrancamentoDeMatriculaUseCase;
 
 /** Camada de apresentacao web (adaptador de entrada): CRUD de matriculas. */
 @RestController
@@ -36,6 +37,7 @@ public class MatriculaController {
     private final RenovarMatriculaUseCase renovar;
     private final CancelarMatriculaUseCase cancelar;
     private final ServicoDeConsultas consultas;
+    private final TrancamentoDeMatriculaUseCase trancamento;
 
     public MatriculaController(MatricularAlunoUseCase matricular,
                                AtualizarMatriculaUseCase atualizar,
@@ -43,7 +45,8 @@ public class MatriculaController {
                                RegistrarPagamentoUseCase registrarPagamento,
                                RenovarMatriculaUseCase renovar,
                                CancelarMatriculaUseCase cancelar,
-                               ServicoDeConsultas consultas) {
+                               ServicoDeConsultas consultas,
+                               TrancamentoDeMatriculaUseCase trancamento) {
         this.matricular = matricular;
         this.atualizar = atualizar;
         this.excluir = excluir;
@@ -51,6 +54,7 @@ public class MatriculaController {
         this.renovar = renovar;
         this.cancelar = cancelar;
         this.consultas = consultas;
+        this.trancamento = trancamento;
     }
 
     @PostMapping
@@ -87,7 +91,7 @@ public class MatriculaController {
     public Respostas.MatriculaResumo pagar(@PathVariable Long id,
                                            @RequestBody Comandos.RegistrarPagamento corpo) {
         return registrarPagamento.executar(
-                new Comandos.RegistrarPagamento(id, corpo.valor(), corpo.formaDePagamento()));
+                new Comandos.RegistrarPagamento(id, corpo.valor(), corpo.formaDePagamento(), corpo.parcelas()));
     }
 
     @PostMapping("/{id}/renovacoes")
@@ -98,5 +102,15 @@ public class MatriculaController {
     @PostMapping("/{id}/cancelamento")
     public Respostas.MatriculaResumo cancelar(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
         return cancelar.executar(id, corpo == null ? null : corpo.texto());
+    }
+
+    @PostMapping("/{id}/trancamento")
+    public Respostas.MatriculaResumo trancar(@PathVariable Long id, @RequestBody Comandos.Trancar corpo) {
+        return trancamento.trancar(id, corpo == null ? null : corpo.dias());
+    }
+
+    @PostMapping("/{id}/destrancamento")
+    public Respostas.MatriculaResumo destrancar(@PathVariable Long id) {
+        return trancamento.destrancar(id);
     }
 }

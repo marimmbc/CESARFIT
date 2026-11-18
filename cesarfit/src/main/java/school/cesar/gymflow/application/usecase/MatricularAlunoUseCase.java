@@ -17,6 +17,7 @@ import school.cesar.gymflow.domain.shared.Dinheiro;
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
 import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
+import school.cesar.gymflow.domain.shared.evento.BarramentoDeEventos;
 
 /**
  * Caso de uso: cadastrar matricula associando aluno a um plano (media - Integrante 3).
@@ -29,17 +30,14 @@ public class MatricularAlunoUseCase {
     private final RepositorioDeMatriculas repositorioDeMatriculas;
     private final SeletorDePolitica seletorDePolitica;
     private final PublicadorDeEventos publicador;
-    private final school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas fichas;
-    private final GerarFichaDeTreinoUseCase gerarFicha;
+    private final BarramentoDeEventos barramento;
 
     public MatricularAlunoUseCase(RepositorioDeAlunos repositorioDeAlunos,
                                   RepositorioDeMatriculas repositorioDeMatriculas,
                                   SeletorDePolitica seletorDePolitica,
                                   PublicadorDeEventos publicador,
-                                  school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas fichas,
-                                  GerarFichaDeTreinoUseCase gerarFicha) {
-        this.fichas = fichas;
-        this.gerarFicha = gerarFicha;
+                                  BarramentoDeEventos barramento) {
+        this.barramento = barramento;
         this.repositorioDeAlunos = repositorioDeAlunos;
         this.repositorioDeMatriculas = repositorioDeMatriculas;
         this.seletorDePolitica = seletorDePolitica;
@@ -70,10 +68,8 @@ public class MatricularAlunoUseCase {
                 String.valueOf(salva.id()),
                 "Aluno " + aluno.nome() + " matriculado no " + plano.nome() + " por " + valor));
 
-        // Todo aluno novo ja recebe a ficha padrao com divisao A / B / C.
-        if (fichas.porAluno(aluno.id()).isEmpty() && salva.estaVigenteEm(LocalDate.now())) {
-            gerarFicha.executar(aluno.id());
-        }
+        // O contexto Treino reage a este evento e gera a ficha padrao A / B / C.
+        barramento.postar(salva.efetivacao());
 
         return Resumos.matricula(salva, aluno.nome());
     }

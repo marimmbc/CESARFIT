@@ -10,6 +10,11 @@ ContextMap GymFlowMapa {
   MatriculaContext [U,OHS]->[D,CF] AcessoContext
   TreinoContext [U,OHS]->[D,CF] AtendimentoContext
   MatriculaContext [U,OHS]->[D,CF] AtendimentoContext
+  // Integracoes por eventos de dominio (Published Language):
+  OperacaoContext [U,PL]->[D,CF] AtendimentoContext   // EquipamentoInterditado / EquipamentoLiberado
+  TreinoContext [U,PL]->[D,CF] AtendimentoContext     // DorRelatada
+  FinanceiroContext [U,PL]->[D,CF] MatriculaContext   // ContestacaoJulgadaProcedente
+  MatriculaContext [U,PL]->[D,CF] TreinoContext       // MatriculaEfetivada
 }
 
 Domain Academia {
@@ -56,8 +61,21 @@ BoundedContext MatriculaContext implements GestaoDeMatriculas {
       boolean estornado
       String motivoDoEstorno
       Date dataDoEstorno
+      - Dinheiro valorEstornado
+      - MotivoDeEstorno categoriaDoEstorno
+      def Dinheiro saldoEstornavel();
+      - Dinheiro multa
+      - Dinheiro juros
+      int parcelas
+      - Dinheiro troco
     }
+    enum MotivoDeEstorno { COBRANCA_DUPLICADA, VALOR_INCORRETO, DESISTENCIA, CONTESTACAO_PROCEDENTE, OUTRO }
+    enum FormaDePagamento { PIX, DINHEIRO, CARTAO_DEBITO, CARTAO_CREDITO, BOLETO }
+    DomainEvent MatriculaEfetivada { Long matriculaId Long alunoId String plano Date inicio Date fim }
     enum Modalidade { MENSAL, ANUAL }
+    // Matricula (raiz): creditoDeTroca, trancadaDe, trancadaAte, diasTrancados, trancamentos
+    // def Pagamento registrarPagamento(Dinheiro valor, FormaDePagamento forma, int parcelas, Date hoje);
+    // def Dinheiro valorDevido(Date hoje);  def void trancar(int dias, Date hoje);  def int destrancar(Date hoje);
     enum StatusMatricula { ATIVA, VENCIDA, CANCELADA }
   }
   Aggregate Notificacoes {
@@ -66,10 +84,13 @@ BoundedContext MatriculaContext implements GestaoDeMatriculas {
       Long matriculaId
       Long alunoId
       Date vencimento
+      - EtapaDeAviso etapa
       Date enviadaEm
       String mensagem
       boolean lida
+      def static EtapaDeAviso etapaDevida(@Matricula matricula, Date hoje, Set<EtapaDeAviso> jaEnviadas, boolean outraVigente);
     }
+    enum EtapaDeAviso { LEMBRETE, PROXIMO_DO_VENCIMENTO, VENCE_HOJE, VENCIDA, ULTIMO_AVISO }
   }
 }
 
@@ -84,8 +105,21 @@ BoundedContext FinanceiroContext implements Financeiro {
       String motivo
       - StatusContestacao status
       String parecer
+      String analista
+      String valorEstornado
+      String pergunta
+      String respostaDoAluno
+      int pedidosDeInformacao
+      String justificativaDoRecurso
+      boolean recursoUsado
+      def void pedirInformacoes(String pergunta);
+      def void responder(String resposta);
+      def Dinheiro analisar(StatusContestacao resultado, Dinheiro valorParcial, String parecer, String analista);
+      def void recorrer(String justificativa);
+      def boolean atrasada(Date agora);
     }
-    enum StatusContestacao { ABERTA, PROCEDENTE, IMPROCEDENTE }
+    DomainEvent ContestacaoJulgadaProcedente { Long contestacaoId Long matriculaId int indiceDoPagamento - Dinheiro valor String resultado String parecer }
+    enum StatusContestacao { ABERTA, AGUARDANDO_ALUNO, PROCEDENTE, PARCIALMENTE_PROCEDENTE, IMPROCEDENTE, EM_RECURSO }
   }
 }
 
@@ -126,6 +160,16 @@ BoundedContext TreinoContext implements Treinamento {
       Date data
       int esforco
       String observacao
+      int duracaoMinutos
+      boolean dor
+      String localDaDor
+      - AlertaDeCarga alerta
+      def int carga(); // sRPE = esforco x duracao
+    }
+    DomainEvent DorRelatada { Long feedbackId Long alunoId String localDaDor }
+    enum AlertaDeCarga { DOR_RELATADA, RISCO_DE_LESAO, SOBRECARGA, PROGRESSAO_SUGERIDA, NENHUM }
+    Service AnaliseDeCarga {
+      Resultado analisar(List<@FeedbackDeTreino> anteriores, @FeedbackDeTreino atual, Date hoje); // ACWR = aguda/cronica
     }
   }
 }
@@ -139,8 +183,21 @@ BoundedContext AtendimentoContext implements AtendimentoAoAluno {
       Date dataProposta
       Date dataAgendada
       - StatusAvaliacao status
+      int propostasFeitas
+      - ResultadoDeAvaliacao resultado
+      Date realizadaEm
+      def void recusarProposta();
+      def void registrarResultado(@ResultadoDeAvaliacao medidas, Date agora);
+      def void registrarFalta(Date agora);
     }
-    enum StatusAvaliacao { SOLICITADA, NOVO_HORARIO_PROPOSTO, CONFIRMADA, CANCELADA }
+    ValueObject ResultadoDeAvaliacao {
+      double pesoKg
+      double alturaM
+      Double percentualDeGordura
+      def BigDecimal imc();
+      def String classificacao();
+    }
+    enum StatusAvaliacao { SOLICITADA, NOVO_HORARIO_PROPOSTO, CONFIRMADA, REALIZADA, NAO_COMPARECEU, CANCELADA }
   }
   Aggregate Substituicoes {
     Entity SolicitacaoDeSubstituicao {
@@ -151,9 +208,13 @@ BoundedContext AtendimentoContext implements AtendimentoAoAluno {
       String exercicioAtual
       String exercicioNovo
       String motivo
+      - MotivoDeSubstituicao categoria
       - StatusSolicitacao status
+      boolean automatica
+      def StatusSolicitacao statusEm(Date agora); // EXPIRADA apos 7 dias pendente
     }
-    enum StatusSolicitacao { PENDENTE, APROVADA, REJEITADA }
+    enum MotivoDeSubstituicao { DOR_OU_LESAO, EQUIPAMENTO_INDISPONIVEL, DIFICULDADE_TECNICA, PREFERENCIA }
+    enum StatusSolicitacao { PENDENTE, APROVADA, REJEITADA, EXPIRADA }
   }
   Aggregate Atendimentos {
     Entity SolicitacaoDeAtendimento {
@@ -163,9 +224,22 @@ BoundedContext AtendimentoContext implements AtendimentoAoAluno {
       String motivo
       String instrutor
       String orientacao
+      - TipoDeAtendimento tipo
       - StatusAtendimento status
+      Date assumidoEm
+      int transferencias
+      Integer nota
+      String comentario
+      boolean automatico
+      def void transferir(String novoInstrutor);
+      def void cancelar();
+      def void avaliar(int nota, String comentario, Date agora);
+      def boolean atrasado(Date agora);
     }
-    enum StatusAtendimento { ABERTO, EM_ATENDIMENTO, CONCLUIDO }
+    // Visao propria alimentada por eventos do OperacaoContext:
+    // Repository RepositorioDeEquipamentosIndisponiveis { marcarIndisponivel(String); liberar(String); boolean indisponivel(String); }
+    enum TipoDeAtendimento { DUVIDA_EXECUCAO, AJUSTE_DE_EQUIPAMENTO, DOR_OU_LESAO, OUTRO }
+    enum StatusAtendimento { ABERTO, EM_ATENDIMENTO, CONCLUIDO, CANCELADO }
   }
 }
 
@@ -176,9 +250,24 @@ BoundedContext OperacaoContext implements OperacaoDaAcademia {
       String equipamento
       String descricao
       String solucao
+      - Severidade severidade
       - StatusOcorrencia status
+      Date inicioDoSla
+      long minutosPausados
+      String pecaAguardada
+      - Dinheiro custoDoReparo
+      int reaberturas
+      boolean reincidente
+      def void aguardarPeca(String peca, Date agora);
+      def void retomar(Date agora);
+      def void reabrir(String motivo, Date agora);
+      def Date prazoDoSla(Date agora);
+      def boolean interditado();
     }
-    enum StatusOcorrencia { ABERTA, EM_ANDAMENTO, RESOLVIDA }
+    enum Severidade { BAIXA, MEDIA, ALTA, CRITICA }
+    DomainEvent EquipamentoInterditado { Long ocorrenciaId String equipamento String severidade }
+    DomainEvent EquipamentoLiberado { Long ocorrenciaId String equipamento }
+    enum StatusOcorrencia { ABERTA, EM_ANDAMENTO, AGUARDANDO_PECA, RESOLVIDA }
   }
 }
 
@@ -192,5 +281,6 @@ BoundedContext AcessoContext implements ControleDeAcesso {
       String senhaCodificada
     }
     enum Perfil { ALUNO, EQUIPE }
+    ValueObject TentativasDeAcesso { int falhas Date bloqueadoAte } // 5 falhas = 15 min de bloqueio
   }
 }

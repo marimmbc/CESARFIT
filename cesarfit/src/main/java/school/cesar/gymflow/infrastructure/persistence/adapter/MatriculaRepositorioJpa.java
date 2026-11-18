@@ -27,8 +27,13 @@ public class MatriculaRepositorioJpa implements RepositorioDeMatriculas {
     @Override
     public Matricula salvar(Matricula matricula) {
         List<PagamentoEmbeddable> pagamentos = matricula.pagamentos().stream()
-                .map(p -> new PagamentoEmbeddable(p.valor().valor(), p.data(), p.formaDePagamento(),
-                        p.estornado(), p.motivoDoEstorno(), p.dataDoEstorno()))
+                .map(p -> {
+                    PagamentoEmbeddable e = new PagamentoEmbeddable(p.valor().valor(), p.data(), p.formaDePagamento(),
+                            p.estornado(), p.motivoDoEstorno(), p.dataDoEstorno(), p.valorEstornado().valor(),
+                            p.categoriaDoEstorno() == null ? null : p.categoriaDoEstorno().name());
+                    e.definirEncargos(p.multa().valor(), p.juros().valor(), p.parcelas(), p.troco().valor());
+                    return e;
+                })
                 .toList();
         MatriculaEntity entidade = new MatriculaEntity(matricula.id(), matricula.alunoId(),
                 matricula.modalidade(), matricula.valorMensal().valor(),
@@ -36,6 +41,8 @@ public class MatriculaRepositorioJpa implements RepositorioDeMatriculas {
         entidade.definirCancelamento(matricula.justificativaDoCancelamento(),
                 matricula.dataDaSolicitacaoDeCancelamento(),
                 matricula.taxaDeCancelamento() == null ? null : matricula.taxaDeCancelamento().valor());
+        entidade.definirCobranca(matricula.creditoDeTroca().valor(), matricula.trancadaDe(), matricula.trancadaAte(),
+                matricula.diasTrancados(), matricula.trancamentos());
         return paraDominio(jpa.save(entidade));
     }
 
@@ -69,12 +76,21 @@ public class MatriculaRepositorioJpa implements RepositorioDeMatriculas {
     static Matricula paraDominio(MatriculaEntity e) {
         List<Pagamento> pagamentos = e.getPagamentos().stream()
                 .map(p -> new Pagamento(Dinheiro.de(p.getValor()), p.getData(), p.getFormaDePagamento(),
-                        p.isEstornado(), p.getMotivoDoEstorno(), p.getDataDoEstorno()))
+                        p.isEstornado(), p.getMotivoDoEstorno(), p.getDataDoEstorno(),
+                        p.getValorEstornado() == null ? null : Dinheiro.de(p.getValorEstornado()),
+                        p.getCategoriaDoEstorno() == null ? null
+                                : school.cesar.gymflow.domain.matricula.model.MotivoDeEstorno.valueOf(p.getCategoriaDoEstorno()),
+                        p.getMulta() == null ? null : Dinheiro.de(p.getMulta()),
+                        p.getJuros() == null ? null : Dinheiro.de(p.getJuros()),
+                        p.getParcelas(),
+                        p.getTroco() == null ? null : Dinheiro.de(p.getTroco())))
                 .toList();
         Matricula matricula = new Matricula(e.getId(), e.getAlunoId(), e.getModalidade(),
                 Dinheiro.de(e.getValorMensal()), e.getInicio(), e.getFim(), e.getStatus(), pagamentos);
         matricula.restaurarCancelamento(e.getJustificativaDoCancelamento(), e.getDataDaSolicitacaoDeCancelamento(),
                 e.getTaxaDeCancelamento() == null ? null : Dinheiro.de(e.getTaxaDeCancelamento()));
+        matricula.restaurarCobranca(e.getCreditoDeTroca() == null ? null : Dinheiro.de(e.getCreditoDeTroca()),
+                e.getTrancadaDe(), e.getTrancadaAte(), e.getDiasTrancados(), e.getTrancamentos());
         return matricula;
     }
 }

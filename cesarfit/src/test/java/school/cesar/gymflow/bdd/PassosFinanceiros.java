@@ -137,6 +137,79 @@ public class PassosFinanceiros {
         assertEquals(status, contestacao.status());
     }
 
+    /* ---------- estorno com categoria ---------- */
+
+    @Quando("eu estornar {string} do pagamento {int} na categoria {string} com o motivo {string}")
+    public void estornarComCategoria(String valor, int indice, String categoria, String motivo) {
+        contexto.matricula(estornar.executar(contexto.matricula().id(), indice,
+                new Comandos.EstornarPagamento(valor, categoria, motivo)));
+    }
+
+    @Quando("eu tentar estornar {string} do pagamento {int} na categoria {string} com o motivo {string}")
+    public void tentarEstornarComCategoria(String valor, int indice, String categoria, String motivo) {
+        capturar(() -> estornarComCategoria(valor, indice, categoria, motivo));
+    }
+
+    @Entao("o total pago da matricula deve ser {string}")
+    public void totalPago(String valor) {
+        assertEquals(valor, contexto.matricula().totalPago());
+    }
+
+    @Entao("o total pago salvo da matricula deve ser {string}")
+    public void totalPagoSalvo(String valor) {
+        assertEquals(valor, recarregar().totalPago());
+    }
+
+    @Entao("o pagamento {int} deve estar parcialmente estornado")
+    public void parcialmenteEstornado(int indice) {
+        assertTrue(recarregar().pagamentos().get(indice).parcialmenteEstornado());
+    }
+
+    /* ---------- contestacao: analista, pedido de informacoes e recurso ---------- */
+
+    @Quando("o analista {string} decidir a contestacao como {string} com o parecer {string}")
+    public void decidir(String analista, String resultado, String parecer) {
+        contestacao = contestacoes.analisar(contestacao.id(),
+                new Comandos.AnalisarContestacao(null, resultado, null, parecer), analista);
+    }
+
+    @Quando("o analista {string} tentar decidir a contestacao como {string} com o parecer {string}")
+    public void tentarDecidir(String analista, String resultado, String parecer) {
+        capturar(() -> decidir(analista, resultado, parecer));
+    }
+
+    @Quando("o analista {string} decidir a contestacao como {string} estornando {string} com o parecer {string}")
+    public void decidirParcial(String analista, String resultado, String valor, String parecer) {
+        contestacao = contestacoes.analisar(contestacao.id(),
+                new Comandos.AnalisarContestacao(null, resultado, valor, parecer), analista);
+    }
+
+    @Quando("a equipe pedir informacoes com a pergunta {string}")
+    public void pedirInformacoes(String pergunta) {
+        contestacao = contestacoes.pedirInformacoes(contestacao.id(), pergunta);
+    }
+
+    @Quando("o aluno responder a contestacao com {string}")
+    public void responder(String resposta) {
+        contestacao = contestacoes.responder(contexto.alunoId(), contestacao.id(), resposta);
+    }
+
+    @Quando("o aluno recorrer com a justificativa {string}")
+    public void recorrer(String justificativa) {
+        contestacao = contestacoes.recorrer(contexto.alunoId(), contestacao.id(), justificativa);
+    }
+
+    @Quando("o aluno tentar recorrer com a justificativa {string}")
+    public void tentarRecorrer(String justificativa) {
+        capturar(() -> recorrer(justificativa));
+    }
+
+    @Entao("a contestacao deve estar atrasada")
+    public void contestacaoAtrasada() {
+        Long id = contestacao.id();
+        assertTrue(contestacoes.todas().stream().filter(c -> c.id().equals(id)).findFirst().orElseThrow().atrasada());
+    }
+
     /** Le a matricula de novo do banco (a contestacao procedente estorna fora do contexto do teste). */
     private Respostas.MatriculaResumo recarregar() {
         return consultas.matricula(contexto.matricula().id());

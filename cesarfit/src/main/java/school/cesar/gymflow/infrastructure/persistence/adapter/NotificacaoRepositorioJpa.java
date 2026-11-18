@@ -3,9 +3,12 @@ package school.cesar.gymflow.infrastructure.persistence.adapter;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
+import school.cesar.gymflow.domain.matricula.model.EtapaDeAviso;
 import school.cesar.gymflow.domain.matricula.model.NotificacaoDeVencimento;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeNotificacoes;
 import school.cesar.gymflow.infrastructure.persistence.entity.NotificacaoEntity;
@@ -28,6 +31,7 @@ public class NotificacaoRepositorioJpa implements RepositorioDeNotificacoes {
         e.matriculaId = n.matriculaId();
         e.alunoId = n.alunoId();
         e.vencimento = n.vencimento();
+        e.etapa = n.etapa();
         e.enviadaEm = n.enviadaEm();
         e.mensagem = n.mensagem();
         e.lida = n.lida();
@@ -40,8 +44,10 @@ public class NotificacaoRepositorioJpa implements RepositorioDeNotificacoes {
     }
 
     @Override
-    public boolean existe(Long matriculaId, LocalDate vencimento) {
-        return jpa.existsByMatriculaIdAndVencimento(matriculaId, vencimento);
+    public Set<EtapaDeAviso> etapasEnviadas(Long matriculaId, LocalDate vencimento) {
+        return jpa.findByMatriculaIdAndVencimento(matriculaId, vencimento).stream()
+                .map(e -> e.etapa == null ? EtapaDeAviso.PROXIMO_DO_VENCIMENTO : e.etapa)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -55,6 +61,6 @@ public class NotificacaoRepositorioJpa implements RepositorioDeNotificacoes {
     }
 
     private static NotificacaoDeVencimento paraDominio(NotificacaoEntity e) {
-        return new NotificacaoDeVencimento(e.id, e.matriculaId, e.alunoId, e.vencimento, e.enviadaEm, e.mensagem, e.lida);
+        return new NotificacaoDeVencimento(e.id, e.matriculaId, e.alunoId, e.vencimento, e.etapa, e.enviadaEm, e.mensagem, e.lida);
     }
 }

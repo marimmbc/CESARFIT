@@ -48,8 +48,19 @@ public class ExcluirAlunoUseCase {
                     + ": ele possui matricula ativa (" + m.descricaoDoPlano()
                     + "). Cancele ou exclua a matricula antes.");
         });
-        matriculas.forEach(m -> repositorioDeMatriculas.excluir(m.id()));
+        boolean temHistoricoFinanceiro = matriculas.stream().anyMatch(m -> !m.pagamentos().isEmpty());
         repositorioDeFichas.excluirPorAluno(alunoId);
+        if (temHistoricoFinanceiro) {
+            // LGPD: o historico financeiro precisa ser guardado; apagamos so os dados pessoais.
+            String nomeAntigo = aluno.nome();
+            aluno.anonimizar();
+            repositorioDeAlunos.salvar(aluno);
+            publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_EXCLUIDO, String.valueOf(alunoId),
+                    "Aluno " + nomeAntigo + " anonimizado (LGPD): " + matriculas.size()
+                            + " matricula(s) com pagamentos mantida(s) para o historico financeiro"));
+            return;
+        }
+        matriculas.forEach(m -> repositorioDeMatriculas.excluir(m.id()));
         repositorioDeAlunos.excluir(alunoId);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_EXCLUIDO,
                 String.valueOf(alunoId), "Aluno " + aluno.nome() + " excluido ("

@@ -83,3 +83,44 @@
 - Equipe nao conclui mais exercicios; abas "Alunos" e "Matriculas" juntas (funcionalidades mantidas).
 - Busca de matriculas tambem por CPF; catalogo com mais exercicios; avaliacao fisica so em horarios redondos.
 - Novo arquivo de cenarios: `personalizacao.feature`.
+
+
+## Funcionalidades baixas mais complexas (pedido do professor)
+Inspiracao: repositorio de referencia do professor (`sgb-2025-01`): regras dentro dos agregados,
+eventos de dominio, servicos de dominio e BDD por funcionalidade.
+
+- **Relogio de dominio** (`domain.shared.Relogio`, `RelogioDoSistema`, `RelogioDeTeste`): toda regra com prazo
+  recebe o "agora"; os cenarios avancam o tempo para testar SLA, prazos de estorno, recurso, expiracao etc.
+- **Regua de vencimento**: `EtapaDeAviso` (5 etapas), sem repeticao/regressao, cobranca so sem nova matricula vigente.
+- **Ocorrencias**: `Severidade` (SLA e interdicao), `AGUARDANDO_PECA` com SLA pausado, custo do reparo,
+  reabertura em 7 dias (max. 2), reincidencia eleva a severidade.
+- **Estorno**: parcial, `MotivoDeEstorno`, prazo de 90 dias, duplicidade, desistencia em 7 dias cancela sem taxa.
+- **Contestacao**: pedido de informacoes, resultado parcial, SLA de 5 dias, recurso unico por outro analista,
+  limite de improcedentes, prazo de 30 dias.
+- **Avaliacao fisica**: 24h de antecedencia, conflito de agenda, 2 contrapropostas, `ResultadoDeAvaliacao` (IMC),
+  faltas com bloqueio, intervalo de 30 dias, cancelamento ate 2h antes.
+- **Substituicao**: `MotivoDeSubstituicao`, limites por ficha, sugestoes, aprovacao automatica quando o
+  equipamento esta interditado (integra com Ocorrencias), expiracao em 7 dias, fila priorizada.
+- **Feedback**: duracao, dor, carga sRPE, servico de dominio `AnaliseDeCarga` (ACWR e tendencias),
+  `AlertaDeCarga`; dor abre atendimento prioritario automaticamente (integra com Atendimento).
+- **Atendimento**: `TipoDeAtendimento` (prioridade), fila priorizada, SLA de resposta, max. 3 por instrutor,
+  transferencia, cancelamento e avaliacao do aluno.
+- **Telas** atualizadas (equipe e aluno) para todas as novas acoes; `docs/gymflow.cml` atualizado.
+- **Testes**: 50 cenarios novos (112 no total). `mvn test` agora executa os cenarios (antes rodava 0 testes)
+  e nao executa mais tudo duas vezes.
+
+
+## Segunda rodada: medias, altas e eventos de dominio
+- **Alunos**: responsavel legal para menores de 18, e-mail unico, idade maxima, exclusao com anonimizacao (LGPD).
+- **Pagamentos**: `FormaDePagamento`, multa e juros por atraso, troco so em dinheiro, parcelamento do Anual no
+  credito, pagamento em atraso renova a vigencia, inadimplencia com tolerancia de 5 dias.
+- **Matricula**: credito pro-rata na troca de plano; trancamento do Anual (7 a 60 dias, 2 por contrato, destrancar devolve dias).
+- **Acesso**: `TentativasDeAcesso` (5 erros = 15 min de bloqueio), senha forte, aviso de primeiro acesso,
+  sessao expira por inatividade (30 min), matricula vencida ha mais de 30 dias nao entra.
+- **Check-in**: horario 6h-22h, bloqueio por inadimplencia e por trancamento.
+- **Eventos de dominio tipados** (`Evento`, `BarramentoDeEventos`, `ManipuladorDeEvento`, `RaizDeAgregado`):
+  `MatriculaEfetivada`, `DorRelatada`, `EquipamentoInterditado`, `EquipamentoLiberado`,
+  `ContestacaoJulgadaProcedente`. Os contextos passaram a reagir a eventos em vez de chamar uns aos outros;
+  o contexto Atendimento ganhou uma visao propria dos equipamentos indisponiveis.
+- **Testes**: 29 cenarios novos (141 no total); o relogio dos testes comeca sempre as 10h do dia.
+- README corrigido: os planos sao Mensal (R$ 120,00) e Anual (R$ 1320,00).

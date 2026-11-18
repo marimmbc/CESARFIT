@@ -25,6 +25,8 @@ public class AlunoRepositorioJpa implements RepositorioDeAlunos {
     public Aluno salvar(Aluno aluno) {
         AlunoEntity entidade = new AlunoEntity(aluno.id(), aluno.nome(), aluno.cpf().numero(),
                 aluno.telefone(), aluno.email(), aluno.dataDeNascimento(), aluno.objetivo());
+        entidade.definirResponsavel(aluno.responsavelNome(),
+                aluno.responsavelCpf() == null ? null : aluno.responsavelCpf().numero(), aluno.anonimizado());
         return paraDominio(jpa.save(entidade));
     }
 
@@ -36,6 +38,12 @@ public class AlunoRepositorioJpa implements RepositorioDeAlunos {
     @Override
     public Optional<Aluno> porCpf(Cpf cpf) {
         return jpa.findByCpf(cpf.numero()).map(AlunoRepositorioJpa::paraDominio);
+    }
+
+    @Override
+    public Optional<Aluno> porEmail(String email) {
+        return email == null ? Optional.empty()
+                : jpa.findFirstByEmailIgnoreCase(email.trim()).map(AlunoRepositorioJpa::paraDominio);
     }
 
     @Override
@@ -56,7 +64,12 @@ public class AlunoRepositorioJpa implements RepositorioDeAlunos {
     static Aluno paraDominio(AlunoEntity e) {
         String telefone = e.getTelefone() == null || e.getTelefone().isBlank()
                 ? "00000000000" : e.getTelefone();
+        if (e.isAnonimizado()) {
+            return Aluno.restaurarAnonimizado(e.getId(), e.getNome(), Cpf.de(e.getCpf()), telefone, e.getEmail(),
+                    e.getDataDeNascimento(), e.getObjetivo());
+        }
         return new Aluno(e.getId(), e.getNome(), Cpf.de(e.getCpf()), telefone, e.getEmail(),
-                e.getDataDeNascimento(), e.getObjetivo());
+                e.getDataDeNascimento(), e.getObjetivo(), e.getResponsavelNome(),
+                e.getResponsavelCpf() == null ? null : Cpf.de(e.getResponsavelCpf()));
     }
 }

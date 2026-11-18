@@ -53,4 +53,11 @@ public class SubstituicaoEntity {
 
     @Column(name = "respondida_em")
     public LocalDateTime respondidaEm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    public school.cesar.gymflow.domain.atendimento.model.MotivoDeSubstituicao categoria;
+
+    @Column
+    public Boolean automatica;
 }

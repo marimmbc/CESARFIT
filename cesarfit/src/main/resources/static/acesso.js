@@ -99,6 +99,12 @@ document.getElementById('form-login').addEventListener('submit', async (evento) 
     const sessao = await api('POST', '/api/acesso/login', { numero, senha });
     guardarSessao(sessao);
     entrarNaVisao(sessao.perfil);
+    if (sessao.precisaTrocarSenha) {
+      setTimeout(() => {
+        avisar('Primeiro acesso: troque a senha inicial (6 primeiros dígitos do CPF) por uma senha só sua.');
+        document.getElementById('janela-senha').showModal();
+      }, 600);
+    }
   } catch (e) {
     erro.textContent = traduzir(e.message);
     tremer(cartao);
@@ -135,7 +141,11 @@ function traduzir(texto) {
     .replace('Check-in exige matricula ativa', 'O check-in exige matrícula ativa.')
     .replace('Senha atual incorreta', 'A senha atual está incorreta.')
     .replace('A nova senha deve ser diferente da atual', 'A nova senha deve ser diferente da atual.')
-    .replace('A nova senha deve ter pelo menos 6 caracteres', 'A nova senha deve ter pelo menos 6 caracteres.')
+    .replace('A nova senha deve ter pelo menos 8 caracteres', 'A nova senha deve ter pelo menos 8 caracteres.')
+    .replace('A nova senha deve ter letras e numeros', 'A nova senha deve ter letras e números.')
+    .replace('A nova senha nao pode conter os digitos do seu CPF', 'A nova senha não pode conter os dígitos do seu CPF.')
+    .replace(/tentativas invalidas/g, 'tentativas inválidas')
+    .replace(/indisponivel/g, 'indisponível').replace(/pendente ha mais/g, 'pendente há mais').replace(/recepcao/g, 'recepção')
     .replace(/\bnao\b/g, 'não').replace(/\bVoce\b/g, 'Você').replace(/\bja\b/g, 'já')
     .replace(/\bvoce\b/g, 'você').replace(/\bexercicio/g, 'exercício').replace(/\bmatricula/g, 'matrícula')
     .replace(/\bavaliacao/g, 'avaliação').replace(/\bsolicitacao/g, 'solicitação').replace(/\bHorario/g, 'Horário')
@@ -373,8 +383,8 @@ document.getElementById('form-senha').addEventListener('submit', async (evento) 
   evento.preventDefault();
   const dados = new FormData(evento.currentTarget);
   const novaSenha = dados.get('novaSenha');
-  if (novaSenha.length < 6) {
-    avisar('A nova senha deve ter pelo menos 6 caracteres.', true);
+  if (novaSenha.length < 8) {
+    avisar('A nova senha deve ter pelo menos 8 caracteres.', true);
     return;
   }
   if (novaSenha !== dados.get('confirmacao')) {

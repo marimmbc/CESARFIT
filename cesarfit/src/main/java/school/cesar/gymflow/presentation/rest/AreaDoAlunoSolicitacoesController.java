@@ -85,6 +85,12 @@ public class AreaDoAlunoSolicitacoesController {
         return avaliacoes.aceitarProposta(s.alunoId(), id);
     }
 
+    @PostMapping("/avaliacoes/{id}/recusa")
+    public Respostas.AvaliacaoResumo recusar(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
+                                             @PathVariable Long id) {
+        return avaliacoes.recusarProposta(s.alunoId(), id);
+    }
+
     @PostMapping("/avaliacoes/{id}/cancelamento")
     public Respostas.AvaliacaoResumo cancelarAvaliacao(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
                                                        @PathVariable Long id) {
@@ -104,10 +110,35 @@ public class AreaDoAlunoSolicitacoesController {
         return ResponseEntity.status(HttpStatus.CREATED).body(atendimentos.abrir(s.alunoId(), comando));
     }
 
+    @PostMapping("/atendimentos/{id}/cancelamento")
+    public Respostas.AtendimentoResumo cancelarAtendimento(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
+                                                           @PathVariable Long id) {
+        return atendimentos.cancelar(s.alunoId(), id);
+    }
+
+    @PostMapping("/atendimentos/{id}/avaliacao")
+    public Respostas.AtendimentoResumo avaliarAtendimento(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
+                                                          @PathVariable Long id,
+                                                          @RequestBody Comandos.AvaliarAtendimento comando) {
+        return atendimentos.avaliar(s.alunoId(), id, comando);
+    }
+
     @PostMapping("/contestacoes")
     public ResponseEntity<Respostas.ContestacaoResumo> contestar(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
                                                                  @RequestBody Comandos.AbrirContestacao comando) {
         return ResponseEntity.status(HttpStatus.CREATED).body(contestacoes.abrir(s.alunoId(), comando));
+    }
+
+    @PostMapping("/contestacoes/{id}/resposta")
+    public Respostas.ContestacaoResumo responderContestacao(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
+                                                            @PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return contestacoes.responder(s.alunoId(), id, corpo == null ? null : corpo.texto());
+    }
+
+    @PostMapping("/contestacoes/{id}/recurso")
+    public Respostas.ContestacaoResumo recorrer(@RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva s,
+                                                @PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return contestacoes.recorrer(s.alunoId(), id, corpo == null ? null : corpo.texto());
     }
 
     /* ---------- o aluno monta o proprio treino ---------- */

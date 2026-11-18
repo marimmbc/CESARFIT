@@ -41,6 +41,25 @@ public class AlunoEntity {
     @Column(nullable = false)
     private Objetivo objetivo;
 
+    @Column(name = "responsavel_nome", length = 120)
+    private String responsavelNome;
+
+    @Column(name = "responsavel_cpf", length = 11)
+    private String responsavelCpf;
+
+    @Column
+    private Boolean anonimizado;
+
+    public void definirResponsavel(String nome, String cpf, boolean anonimizado) {
+        this.responsavelNome = nome;
+        this.responsavelCpf = cpf;
+        this.anonimizado = anonimizado;
+    }
+
+    public String getResponsavelNome() { return responsavelNome; }
+    public String getResponsavelCpf() { return responsavelCpf; }
+    public boolean isAnonimizado() { return Boolean.TRUE.equals(anonimizado); }
+
     protected AlunoEntity() {
     }
 

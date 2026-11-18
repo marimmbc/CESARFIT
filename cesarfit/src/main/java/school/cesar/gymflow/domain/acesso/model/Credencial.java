@@ -9,7 +9,7 @@ import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
  */
 public class Credencial {
 
-    public static final int TAMANHO_MINIMO_DA_SENHA = 6;
+    public static final int TAMANHO_MINIMO_DA_SENHA = 8;
 
     private Long id;
     private final String login;
@@ -49,9 +49,23 @@ public class Credencial {
 
     /** Regra da senha em texto puro, verificada antes de codificar. */
     public static void validarNovaSenha(String senha) {
+        validarNovaSenha(senha, null);
+    }
+
+    /**
+     * Senha forte: pelo menos 8 caracteres, com letras e numeros, e sem conter
+     * a senha de primeiro acesso (os 6 primeiros digitos do CPF).
+     */
+    public static void validarNovaSenha(String senha, String cpf) {
         if (senha == null || senha.length() < TAMANHO_MINIMO_DA_SENHA) {
             throw new RegraDeNegocioException("A nova senha deve ter pelo menos "
                     + TAMANHO_MINIMO_DA_SENHA + " caracteres");
+        }
+        if (!senha.matches(".*[A-Za-z].*") || !senha.matches(".*\\d.*")) {
+            throw new RegraDeNegocioException("A nova senha deve ter letras e numeros");
+        }
+        if (cpf != null && cpf.length() >= 6 && senha.contains(cpf.substring(0, 6))) {
+            throw new RegraDeNegocioException("A nova senha nao pode conter os digitos do seu CPF");
         }
     }
 

@@ -12,10 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import school.cesar.gymflow.domain.matricula.model.EtapaDeAviso;
 
 /** Mapeamento objeto-relacional (campos publicos: estrutura de dados da camada de infraestrutura). */
 @Entity
-@Table(name = "notificacao_vencimento", uniqueConstraints = @UniqueConstraint(columnNames = {"matricula_id", "vencimento"}))
+@Table(name = "notificacao_vencimento", uniqueConstraints = @UniqueConstraint(columnNames = {"matricula_id", "vencimento", "etapa"}))
 public class NotificacaoEntity {
 
     @Id
@@ -30,6 +31,10 @@ public class NotificacaoEntity {
 
     @Column(nullable = false)
     public LocalDate vencimento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    public EtapaDeAviso etapa;
 
     @Column(name = "enviada_em", nullable = false)
     public LocalDateTime enviadaEm;

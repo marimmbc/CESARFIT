@@ -58,6 +58,7 @@ public class ServicoDeConsultas {
         String termo = normalizar(busca);
         String digitos = busca == null ? "" : busca.replaceAll("\\D", "");
         return repositorioDeAlunos.todos().stream()
+                .filter(a -> !a.anonimizado())
                 .filter(a -> termo.isEmpty()
                         || normalizar(a.nome()).contains(termo)
                         || a.email().contains(termo)

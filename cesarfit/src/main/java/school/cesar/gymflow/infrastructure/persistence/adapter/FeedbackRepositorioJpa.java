@@ -31,6 +31,10 @@ public class FeedbackRepositorioJpa implements RepositorioDeFeedbacks {
         e.observacao = f.observacao();
         e.exerciciosConcluidos = f.exerciciosConcluidos();
         e.totalDeExercicios = f.totalDeExercicios();
+        e.duracaoMinutos = f.duracaoMinutos();
+        e.dor = f.dor();
+        e.localDaDor = f.localDaDor();
+        e.alerta = f.alerta();
         return paraDominio(jpa.save(e));
     }
 
@@ -46,6 +50,8 @@ public class FeedbackRepositorioJpa implements RepositorioDeFeedbacks {
 
     private static FeedbackDeTreino paraDominio(FeedbackEntity e) {
         return new FeedbackDeTreino(e.id, e.alunoId, e.fichaId, e.data, e.esforco, e.observacao,
-                e.exerciciosConcluidos, e.totalDeExercicios);
+                e.exerciciosConcluidos, e.totalDeExercicios,
+                e.duracaoMinutos == null ? FeedbackDeTreino.DURACAO_PADRAO : e.duracaoMinutos,
+                Boolean.TRUE.equals(e.dor), e.localDaDor, e.alerta);
     }
 }

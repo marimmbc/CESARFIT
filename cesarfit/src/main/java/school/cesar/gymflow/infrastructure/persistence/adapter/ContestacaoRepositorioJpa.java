@@ -33,6 +33,14 @@ public class ContestacaoRepositorioJpa implements RepositorioDeContestacoes {
         e.parecer = c.parecer();
         e.abertaEm = c.abertaEm();
         e.analisadaEm = c.analisadaEm();
+        e.analista = c.analista();
+        e.valorEstornado = c.valorEstornado();
+        e.pergunta = c.pergunta();
+        e.respostaDoAluno = c.respostaDoAluno();
+        e.pedidosDeInformacao = c.pedidosDeInformacao();
+        e.justificativaDoRecurso = c.justificativaDoRecurso();
+        e.recorridaEm = c.recorridaEm();
+        e.recursoUsado = c.recursoUsado();
         return paraDominio(jpa.save(e));
     }
 
@@ -53,6 +61,8 @@ public class ContestacaoRepositorioJpa implements RepositorioDeContestacoes {
 
     private static ContestacaoDeCobranca paraDominio(ContestacaoEntity e) {
         return new ContestacaoDeCobranca(e.id, e.matriculaId, e.alunoId, e.indiceDoPagamento, e.valor, e.motivo,
-                e.status, e.parecer, e.abertaEm, e.analisadaEm);
+                e.status, e.parecer, e.abertaEm, e.analisadaEm, e.analista, e.valorEstornado, e.pergunta,
+                e.respostaDoAluno, e.pedidosDeInformacao == null ? 0 : e.pedidosDeInformacao, e.justificativaDoRecurso,
+                e.recorridaEm, Boolean.TRUE.equals(e.recursoUsado));
     }
 }

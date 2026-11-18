@@ -67,13 +67,20 @@ public class AtualizarMatriculaUseCase {
         Dinheiro valorAnterior = matricula.valorMensal();
         Dinheiro novoValor = seletorDePolitica.valorDe(novoPlano);
 
+        boolean trocouDePlano = novoPlano != matricula.modalidade();
+        school.cesar.gymflow.domain.shared.Dinheiro credito = trocouDePlano
+                ? matricula.creditoProRata(java.time.LocalDate.now()).minimo(novoValor) : null;
         matricula.alterar(aluno.id(), novoPlano, novoValor, comando.inicio(), novoStatus);
+        if (trocouDePlano) {
+            matricula.definirCreditoDeTroca(credito);
+        }
         Matricula salva = repositorioDeMatriculas.salvar(matricula);
 
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.MATRICULA_ALTERADA,
                 String.valueOf(salva.id()), planoAnterior + " (" + valorAnterior + ") -> "
                         + salva.descricaoDoPlano() + " (" + salva.valorMensal() + "), situacao "
-                        + salva.status()));
+                        + salva.status() + (salva.creditoDeTroca().positivo()
+                        ? "; credito pro-rata de " + salva.creditoDeTroca() + " abatido do novo plano" : "")));
 
         return Resumos.matricula(salva, aluno.nome());
     }

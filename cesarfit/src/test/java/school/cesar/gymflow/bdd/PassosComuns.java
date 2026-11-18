@@ -29,10 +29,17 @@ public class PassosComuns {
 
     Long cadastrar(String nome, String cpf, Objetivo objetivo) {
         var resumo = cadastrarAluno.executar(new Comandos.SalvarAluno(
-                nome, cpf, "81988887777", nome.toLowerCase().replace(" ", ".") + "@email.com",
+                nome, cpf, "81988887777", nome.toLowerCase().replace(" ", ".") + "." + cpf.replaceAll("\\D", "") + "@email.com",
                 LocalDate.of(1995, 5, 10), objetivo));
         assertNotNull(resumo.id());
         return resumo.id();
+    }
+
+    @Entao("devo receber um erro contendo {string}")
+    public void devoReceberErroContendo(String trecho) {
+        assertNotNull(contexto.erro(), "Nenhum erro foi capturado no cenario");
+        org.junit.jupiter.api.Assertions.assertTrue(contexto.erro().getMessage().contains(trecho),
+                "Mensagem recebida: " + contexto.erro().getMessage());
     }
 
     @Entao("devo receber o erro {string}")

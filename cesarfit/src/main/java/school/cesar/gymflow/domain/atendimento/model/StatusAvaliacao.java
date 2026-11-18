@@ -4,5 +4,7 @@ public enum StatusAvaliacao {
     SOLICITADA,
     NOVO_HORARIO_PROPOSTO,
     CONFIRMADA,
+    REALIZADA,
+    NAO_COMPARECEU,
     CANCELADA
 }

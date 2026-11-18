@@ -55,8 +55,9 @@ public class SolicitacaoController {
 
     @PostMapping("/matriculas/{id}/pagamentos/{indice}/estorno")
     public Respostas.MatriculaResumo estornar(@PathVariable Long id, @PathVariable int indice,
-                                              @RequestBody Comandos.Texto corpo) {
-        return estornar.executar(id, indice, texto(corpo));
+                                              @RequestBody java.util.Map<String, String> corpo) {
+        String motivo = corpo.getOrDefault("motivo", corpo.get("texto"));
+        return estornar.executar(id, indice, new Comandos.EstornarPagamento(corpo.get("valor"), corpo.get("categoria"), motivo));
     }
 
     @GetMapping("/contestacoes")
@@ -66,8 +67,14 @@ public class SolicitacaoController {
 
     @PostMapping("/contestacoes/{id}/analise")
     public Respostas.ContestacaoResumo analisar(@PathVariable Long id,
-                                                @RequestBody Comandos.AnalisarContestacao comando) {
-        return contestacoes.analisar(id, comando);
+                                                @RequestBody Comandos.AnalisarContestacao comando,
+                                                @RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva sessao) {
+        return contestacoes.analisar(id, comando, sessao.nome());
+    }
+
+    @PostMapping("/contestacoes/{id}/pedido-de-informacoes")
+    public Respostas.ContestacaoResumo pedirInformacoes(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return contestacoes.pedirInformacoes(id, texto(corpo));
     }
 
     /* ---------- avaliacao fisica ---------- */
@@ -85,6 +92,17 @@ public class SolicitacaoController {
     @PostMapping("/avaliacoes/{id}/proposta")
     public Respostas.AvaliacaoResumo propor(@PathVariable Long id, @RequestBody Comandos.ResponderAvaliacao comando) {
         return avaliacoes.proporHorario(id, comando);
+    }
+
+    @PostMapping("/avaliacoes/{id}/resultado")
+    public Respostas.AvaliacaoResumo resultado(@PathVariable Long id,
+                                               @RequestBody Comandos.RegistrarResultadoDeAvaliacao comando) {
+        return avaliacoes.registrarResultado(id, comando);
+    }
+
+    @PostMapping("/avaliacoes/{id}/falta")
+    public Respostas.AvaliacaoResumo falta(@PathVariable Long id) {
+        return avaliacoes.registrarFalta(id);
     }
 
     /* ---------- substituicao ---------- */
@@ -115,6 +133,11 @@ public class SolicitacaoController {
     public Respostas.AtendimentoResumo assumir(@PathVariable Long id,
                                                @RequestAttribute(FiltroDeSessao.ATRIBUTO) SessaoAtiva sessao) {
         return atendimentos.assumir(id, sessao.nome());
+    }
+
+    @PostMapping("/atendimentos/{id}/transferencia")
+    public Respostas.AtendimentoResumo transferir(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return atendimentos.transferir(id, texto(corpo));
     }
 
     @PostMapping("/atendimentos/{id}/conclusao")

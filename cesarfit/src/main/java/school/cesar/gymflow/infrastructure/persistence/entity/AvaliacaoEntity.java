@@ -44,4 +44,19 @@ public class AvaliacaoEntity {
 
     @Column(name = "criada_em", nullable = false)
     public LocalDateTime criadaEm;
+
+    @Column(name = "propostas_feitas")
+    public Integer propostasFeitas;
+
+    @Column(name = "peso_kg")
+    public Double pesoKg;
+
+    @Column(name = "altura_m")
+    public Double alturaM;
+
+    @Column(name = "percentual_gordura")
+    public Double percentualDeGordura;
+
+    @Column(name = "realizada_em")
+    public LocalDateTime realizadaEm;
 }

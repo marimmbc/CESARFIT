@@ -117,6 +117,35 @@ public class MatriculaEntity {
         this.taxaDeCancelamento = taxa;
     }
 
+    @Column(name = "credito_troca", precision = 10, scale = 2)
+    private java.math.BigDecimal creditoDeTroca;
+
+    @Column(name = "trancada_de")
+    private LocalDate trancadaDe;
+
+    @Column(name = "trancada_ate")
+    private LocalDate trancadaAte;
+
+    @Column(name = "dias_trancados")
+    private Integer diasTrancados;
+
+    @Column(name = "trancamentos")
+    private Integer trancamentos;
+
+    public void definirCobranca(java.math.BigDecimal credito, LocalDate de, LocalDate ate, int dias, int quantidade) {
+        this.creditoDeTroca = credito;
+        this.trancadaDe = de;
+        this.trancadaAte = ate;
+        this.diasTrancados = dias;
+        this.trancamentos = quantidade;
+    }
+
+    public java.math.BigDecimal getCreditoDeTroca() { return creditoDeTroca; }
+    public LocalDate getTrancadaDe() { return trancadaDe; }
+    public LocalDate getTrancadaAte() { return trancadaAte; }
+    public int getDiasTrancados() { return diasTrancados == null ? 0 : diasTrancados; }
+    public int getTrancamentos() { return trancamentos == null ? 0 : trancamentos; }
+
     public java.math.BigDecimal getTaxaDeCancelamento() {
         return taxaDeCancelamento;
     }

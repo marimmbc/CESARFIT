@@ -42,8 +42,15 @@ public class AtualizarAlunoUseCase {
                 .ifPresent(outro -> {
                     throw new RegraDeNegocioException("O CPF " + cpf + " ja pertence a " + outro.nome());
                 });
+        repositorioDeAlunos.porEmail(comando.email())
+                .filter(outro -> !outro.id().equals(alunoId))
+                .ifPresent(outro -> {
+                    throw new RegraDeNegocioException("O e-mail " + comando.email().trim().toLowerCase()
+                            + " ja esta em uso por outro aluno");
+                });
         aluno.atualizar(comando.nome(), cpf, comando.telefone(), comando.email(),
-                comando.dataDeNascimento(), comando.objetivo());
+                comando.dataDeNascimento(), comando.objetivo(), comando.responsavelNome(),
+                comando.cpfDoResponsavel());
         Aluno salvo = repositorioDeAlunos.salvar(aluno);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_ATUALIZADO,
                 String.valueOf(salvo.id()), "Dados de " + salvo.nome() + " atualizados"));

@@ -59,8 +59,25 @@ public class OperacaoController {
         return ocorrencias.iniciar(id);
     }
 
+    @PostMapping("/ocorrencias/{id}/aguardando-peca")
+    public Respostas.OcorrenciaResumo aguardarPeca(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return ocorrencias.aguardarPeca(id, corpo == null ? null : corpo.texto());
+    }
+
+    @PostMapping("/ocorrencias/{id}/retomada")
+    public Respostas.OcorrenciaResumo retomar(@PathVariable Long id) {
+        return ocorrencias.retomar(id);
+    }
+
+    /** Aceita {"solucao": "...", "custo": "45,90"} ou o formato antigo {"texto": "..."}. */
     @PostMapping("/ocorrencias/{id}/resolucao")
-    public Respostas.OcorrenciaResumo resolver(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
-        return ocorrencias.resolver(id, corpo == null ? null : corpo.texto());
+    public Respostas.OcorrenciaResumo resolver(@PathVariable Long id, @RequestBody java.util.Map<String, String> corpo) {
+        String solucao = corpo.getOrDefault("solucao", corpo.get("texto"));
+        return ocorrencias.resolver(id, new Comandos.ResolverOcorrencia(solucao, corpo.get("custo")));
+    }
+
+    @PostMapping("/ocorrencias/{id}/reabertura")
+    public Respostas.OcorrenciaResumo reabrir(@PathVariable Long id, @RequestBody Comandos.Texto corpo) {
+        return ocorrencias.reabrir(id, corpo == null ? null : corpo.texto());
     }
 }

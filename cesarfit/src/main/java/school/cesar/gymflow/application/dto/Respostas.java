@@ -13,7 +13,8 @@ public final class Respostas {
 
     public record AlunoResumo(Long id, String nome, String cpf, String telefone, String email,
                               LocalDate dataDeNascimento, int idade, String objetivo,
-                              boolean possuiMatriculaAtiva, int totalDeMatriculas) {
+                              boolean possuiMatriculaAtiva, int totalDeMatriculas,
+                              boolean menorDeIdade, String responsavelNome, String responsavelCpf) {
     }
 
     public record AlunoDetalhe(AlunoResumo aluno, List<MatriculaResumo> matriculas) {
@@ -24,14 +25,20 @@ public final class Respostas {
     }
 
     public record PagamentoResumo(int indice, String valor, LocalDate data, String formaDePagamento,
-                                  boolean estornado, String motivoDoEstorno, LocalDate dataDoEstorno) {
+                                  boolean estornado, String motivoDoEstorno, LocalDate dataDoEstorno,
+                                  String valorEstornado, String saldoEstornavel, boolean parcialmenteEstornado,
+                                  String categoriaDoEstorno, String multa, String juros, int parcelas,
+                                  String troco) {
     }
 
     public record MatriculaResumo(Long id, Long alunoId, String alunoNome, String plano,
                                   String planoNome, String valorMensal, BigDecimal valorNumerico,
                                   LocalDate inicio, LocalDate fim, String status, String totalPago,
                                   List<PagamentoResumo> pagamentos, String justificativaDoCancelamento,
-                                  LocalDate dataDaSolicitacaoDeCancelamento, String taxaDeCancelamento) {
+                                  LocalDate dataDaSolicitacaoDeCancelamento, String taxaDeCancelamento,
+                                  String valorDevido, String multa, String juros, long diasDeAtraso,
+                                  String creditoDeTroca, boolean pagamentoPendente, boolean trancada,
+                                  LocalDate trancadaAte, int diasTrancados, int trancamentos) {
     }
 
     public record Painel(long totalDeAlunos, long matriculasAtivas, long matriculasVencidas,
@@ -52,7 +59,7 @@ public final class Respostas {
     public record EventoResumo(String tipo, String referencia, String detalhe, String momento) {
     }
 
-    public record Sessao(String token, String perfil, String nome, Long alunoId) {
+    public record Sessao(String token, String perfil, String nome, Long alunoId, boolean precisaTrocarSenha) {
     }
 
     public record DiaDeFrequencia(LocalDate data, String rotulo, boolean presente, boolean hoje) {
@@ -72,6 +79,7 @@ public final class Respostas {
     }
 
     public record NotificacaoResumo(Long id, Long matriculaId, Long alunoId, String alunoNome, LocalDate vencimento,
+                                    String etapa, String etapaRotulo, boolean cobranca,
                                     LocalDateTime enviadaEm, String mensagem, boolean lida) {
     }
 
@@ -79,31 +87,46 @@ public final class Respostas {
     }
 
     public record OcorrenciaResumo(Long id, String equipamento, String descricao, String status,
-                                   LocalDateTime abertaEm, LocalDateTime atualizadaEm, String solucao) {
+                                   LocalDateTime abertaEm, LocalDateTime atualizadaEm, String solucao,
+                                   String severidade, LocalDateTime prazoDoSla, boolean atrasada,
+                                   boolean interditado, String pecaAguardada, long minutosPausados,
+                                   String custoDoReparo, int reaberturas, boolean reincidente) {
     }
 
     public record ContestacaoResumo(Long id, Long matriculaId, Long alunoId, String alunoNome, int indiceDoPagamento,
                                     String valor, String motivo, String status, String parecer,
-                                    LocalDateTime abertaEm, LocalDateTime analisadaEm) {
+                                    LocalDateTime abertaEm, LocalDateTime analisadaEm, String analista,
+                                    String valorEstornado, String pergunta, String respostaDoAluno,
+                                    boolean recursoUsado, String justificativaDoRecurso,
+                                    LocalDateTime prazoDaAnalise, boolean atrasada) {
     }
 
     public record AvaliacaoResumo(Long id, Long alunoId, String alunoNome, LocalDateTime dataDesejada,
                                   LocalDateTime dataProposta, LocalDateTime dataAgendada, String status,
-                                  String observacao, boolean emAberto, LocalDateTime criadaEm) {
+                                  String observacao, boolean emAberto, LocalDateTime criadaEm,
+                                  int propostasRestantes, Double pesoKg, Double alturaM, Double percentualDeGordura,
+                                  BigDecimal imc, String classificacaoImc, LocalDateTime realizadaEm) {
     }
 
     public record SubstituicaoResumo(Long id, Long alunoId, String alunoNome, Long fichaId, int posicao,
                                      String exercicioAtual, String grupoMuscular, String motivo, String status,
-                                     String exercicioNovo, String resposta, LocalDateTime criadaEm) {
+                                     String exercicioNovo, String resposta, LocalDateTime criadaEm,
+                                     String categoria, int prioridade, boolean aprovadaAutomaticamente,
+                                     List<String> sugestoes) {
     }
 
     public record AtendimentoResumo(Long id, Long alunoId, String alunoNome, Long fichaId, String exercicio,
                                     String motivo, String status, String instrutor, String orientacao,
-                                    LocalDateTime abertaEm, LocalDateTime concluidaEm) {
+                                    LocalDateTime abertaEm, LocalDateTime concluidaEm, String tipo,
+                                    String prioridade, LocalDateTime prazoDePrimeiraResposta, boolean atrasado,
+                                    long minutosDeEspera, Integer posicaoNaFila, int transferencias,
+                                    Integer nota, String comentario, boolean automatico) {
     }
 
     public record FeedbackResumo(Long id, Long alunoId, LocalDate data, int esforco, String observacao,
-                                 int exerciciosConcluidos, int totalDeExercicios) {
+                                 int exerciciosConcluidos, int totalDeExercicios, int duracaoMinutos, int carga,
+                                 boolean dor, String localDaDor, String alerta, String descricaoDoAlerta,
+                                 Integer cargaDaSemana, BigDecimal acwr) {
     }
 
     public record SolicitacoesDoAluno(List<NotificacaoResumo> avisos, List<FeedbackResumo> feedbacks,

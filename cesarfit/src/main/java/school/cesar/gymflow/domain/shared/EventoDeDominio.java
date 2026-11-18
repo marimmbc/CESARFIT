@@ -27,6 +27,7 @@ public record EventoDeDominio(String tipo, String referencia, String detalhe, Lo
     public static final String ATENDIMENTO_INSTRUTOR = "ATENDIMENTO_INSTRUTOR";
     public static final String FEEDBACK_TREINO = "FEEDBACK_TREINO";
     public static final String FICHA_PERSONALIZADA = "FICHA_PERSONALIZADA";
+    public static final String ALERTA_DE_CARGA = "ALERTA_DE_CARGA";
 
     public static EventoDeDominio de(String tipo, String referencia, String detalhe) {
         return new EventoDeDominio(tipo, referencia, detalhe, LocalDateTime.now());

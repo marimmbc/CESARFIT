@@ -50,4 +50,23 @@ public class AtendimentoEntity {
 
     @Column(name = "concluida_em")
     public LocalDateTime concluidaEm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    public school.cesar.gymflow.domain.atendimento.model.TipoDeAtendimento tipo;
+
+    @Column(name = "assumido_em")
+    public LocalDateTime assumidoEm;
+
+    @Column
+    public Integer transferencias;
+
+    @Column
+    public Integer nota;
+
+    @Column(length = 300)
+    public String comentario;
+
+    @Column
+    public Boolean automatico;
 }

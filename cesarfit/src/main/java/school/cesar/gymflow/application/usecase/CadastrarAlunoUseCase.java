@@ -35,8 +35,13 @@ public class CadastrarAlunoUseCase {
         repositorioDeAlunos.porCpf(cpf).ifPresent(existente -> {
             throw new RegraDeNegocioException("Ja existe aluno cadastrado com o CPF " + cpf);
         });
+        repositorioDeAlunos.porEmail(comando.email()).ifPresent(existente -> {
+            throw new RegraDeNegocioException("O e-mail " + comando.email().trim().toLowerCase()
+                    + " ja esta em uso por outro aluno");
+        });
         Aluno aluno = new Aluno(null, comando.nome(), cpf, comando.telefone(), comando.email(),
-                comando.dataDeNascimento(), comando.objetivo());
+                comando.dataDeNascimento(), comando.objetivo(), comando.responsavelNome(),
+                comando.cpfDoResponsavel());
         Aluno salvo = repositorioDeAlunos.salvar(aluno);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_CADASTRADO,
                 String.valueOf(salvo.id()), "Aluno " + salvo.nome() + " cadastrado"));

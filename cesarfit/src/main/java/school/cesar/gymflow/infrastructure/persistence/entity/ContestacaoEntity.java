@@ -39,7 +39,7 @@ public class ContestacaoEntity {
     public String motivo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     public StatusContestacao status;
 
     @Column(length = 500)
@@ -50,4 +50,28 @@ public class ContestacaoEntity {
 
     @Column(name = "analisada_em")
     public LocalDateTime analisadaEm;
+
+    @Column(length = 80)
+    public String analista;
+
+    @Column(name = "valor_estornado", length = 30)
+    public String valorEstornado;
+
+    @Column(length = 300)
+    public String pergunta;
+
+    @Column(name = "resposta_aluno", length = 500)
+    public String respostaDoAluno;
+
+    @Column(name = "pedidos_informacao")
+    public Integer pedidosDeInformacao;
+
+    @Column(name = "justificativa_recurso", length = 500)
+    public String justificativaDoRecurso;
+
+    @Column(name = "recorrida_em")
+    public LocalDateTime recorridaEm;
+
+    @Column(name = "recurso_usado")
+    public Boolean recursoUsado;
 }

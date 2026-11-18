@@ -42,4 +42,17 @@ public class FeedbackEntity {
 
     @Column(name = "total_exercicios", nullable = false)
     public int totalDeExercicios;
+
+    @Column(name = "duracao_minutos")
+    public Integer duracaoMinutos;
+
+    @Column
+    public Boolean dor;
+
+    @Column(name = "local_dor", length = 80)
+    public String localDaDor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    public school.cesar.gymflow.domain.treino.model.AlertaDeCarga alerta;
 }

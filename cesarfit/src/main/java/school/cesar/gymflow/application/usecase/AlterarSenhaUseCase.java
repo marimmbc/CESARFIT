@@ -42,7 +42,7 @@ public class AlterarSenhaUseCase {
         if (!confere) {
             throw new RegraDeNegocioException("Senha atual incorreta");
         }
-        Credencial.validarNovaSenha(comando.novaSenha());
+        Credencial.validarNovaSenha(comando.novaSenha(), aluno.cpf().numero());
         if (comando.novaSenha().equals(atual)) {
             throw new RegraDeNegocioException("A nova senha deve ser diferente da atual");
         }

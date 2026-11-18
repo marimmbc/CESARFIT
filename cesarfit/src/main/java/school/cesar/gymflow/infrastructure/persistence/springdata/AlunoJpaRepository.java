@@ -12,4 +12,5 @@ public interface AlunoJpaRepository extends JpaRepository<AlunoEntity, Long> {
     Optional<AlunoEntity> findByCpf(String cpf);
 
     List<AlunoEntity> findAllByOrderByNomeAsc();
+    Optional<AlunoEntity> findFirstByEmailIgnoreCase(String email);
 }

@@ -220,7 +220,9 @@ function dadosDoFormAluno(form) {
     telefone: form.telefone.value.trim(),
     email: form.email.value.trim(),
     dataDeNascimento: form.dataDeNascimento.value || null,
-    objetivo: form.objetivo.value
+    objetivo: form.objetivo.value,
+    responsavelNome: form.responsavelNome.value.trim() || null,
+    responsavelCpf: form.responsavelCpf.value.trim() || null
   };
   if (dados.nome.length < 3) throw new Error('Informe o nome do aluno (mínimo 3 letras)');
   if (dados.cpf.replace(/\D/g, '').length !== 11) throw new Error('CPF deve conter 11 dígitos');
@@ -230,6 +232,21 @@ function dadosDoFormAluno(form) {
   if (!dados.dataDeNascimento) throw new Error('Informe a data de nascimento');
   return dados;
 }
+
+/* Menor de 18 anos: mostra os campos do responsavel legal */
+function idadeEm(dataISO) {
+  if (!dataISO) return null;
+  const n = new Date(dataISO + 'T00:00:00'), h = new Date();
+  let idade = h.getFullYear() - n.getFullYear();
+  if (h.getMonth() < n.getMonth() || (h.getMonth() === n.getMonth() && h.getDate() < n.getDate())) idade--;
+  return idade;
+}
+function atualizarCamposResponsavel() {
+  const form = document.getElementById('form-aluno');
+  const idade = idadeEm(form.dataDeNascimento.value);
+  document.getElementById('campos-responsavel').classList.toggle('oculto', !(idade !== null && idade < 18));
+}
+document.getElementById('form-aluno').dataDeNascimento.addEventListener('change', atualizarCamposResponsavel);
 
 document.getElementById('form-aluno').addEventListener('submit', (evento) => {
   evento.preventDefault();
@@ -259,6 +276,9 @@ function editarAluno(id) {
   form.email.value = a.email;
   form.dataDeNascimento.value = a.dataDeNascimento;
   form.objetivo.value = a.objetivo;
+  form.responsavelNome.value = a.responsavelNome || '';
+  form.responsavelCpf.value = a.responsavelCpf || '';
+  atualizarCamposResponsavel();
   estado.editandoAlunoId = id;
   document.getElementById('titulo-form-aluno').textContent = 'Editar aluno';
   const aviso = document.getElementById('aviso-edicao-aluno');
@@ -498,11 +518,19 @@ function pagarMatricula(id) {
   abrirJanela(`
     <h2>Registrar pagamento <button class="fechar" data-acao="fechar-janela" aria-label="Fechar">×</button></h2>
     <p class="dica">${esc(m.alunoNome)} · ${esc(m.planoNome)} · total já pago: ${esc(m.totalPago)}</p>
+    <div class="cartao">
+      <strong>Valor devido hoje: ${esc(m.valorDevido)}</strong>
+      ${m.diasDeAtraso > 0 ? `<p class="dica">${m.diasDeAtraso} dia(s) de atraso: multa ${esc(m.multa)} + juros ${esc(m.juros)}. O pagamento renova a vigência a partir do vencimento.</p>` : ''}
+      ${m.creditoDeTroca && m.creditoDeTroca !== 'R$ 0,00' ? `<p class="dica">Crédito da troca de plano abatido: ${esc(m.creditoDeTroca)}</p>` : ''}
+      <p class="dica">PIX, cartão e boleto: valor exato. Só dinheiro aceita valor maior (calcula o troco). Parcelamento só no plano Anual, no crédito, em até 12x.</p>
+    </div>
     <form id="form-pagamento" novalidate>
-      <label>Valor (mínimo ${esc(m.valorMensal)})<input name="valor" type="text" value="${m.valorNumerico.toFixed(2).replace('.', ',')}"></label>
+      <label>Valor recebido<input name="valor" type="text" value="${esc(String(m.valorDevido).replace('R$ ', ''))}"></label>
       <label>Forma de pagamento
-        <select name="forma"><option value="PIX">PIX</option><option value="CARTAO">Cartão</option><option value="DINHEIRO">Dinheiro</option></select>
+        <select name="forma"><option value="PIX">PIX</option><option value="CARTAO_CREDITO">Cartão de crédito</option>
+          <option value="CARTAO_DEBITO">Cartão de débito</option><option value="DINHEIRO">Dinheiro</option><option value="BOLETO">Boleto</option></select>
       </label>
+      <label>Parcelas (só plano Anual no cartão de crédito)<input name="parcelas" type="number" min="1" max="12" value="1" style="width:100%"></label>
       <button type="submit" class="primario">Confirmar pagamento</button>
     </form>`);
   document.getElementById('form-pagamento').addEventListener('submit', (evento) => {
@@ -511,9 +539,11 @@ function pagarMatricula(id) {
     tentar(async () => {
       const valor = form.valor.value.trim();
       if (!valor) throw new Error('Informe o valor do pagamento');
-      await api('POST', `/api/matriculas/${id}/pagamentos`, { valor, formaDePagamento: form.forma.value });
+      const r = await api('POST', `/api/matriculas/${id}/pagamentos`,
+        { valor, formaDePagamento: form.forma.value, parcelas: Number(form.parcelas.value) || 1 });
       fecharJanela();
-      avisar('Pagamento registrado.');
+      const ultimo = r.pagamentos[r.pagamentos.length - 1];
+      avisar(ultimo && ultimo.troco !== 'R$ 0,00' ? `Pagamento registrado. Troco: ${ultimo.troco}.` : 'Pagamento registrado.');
       await recarregarTudo();
     });
   });

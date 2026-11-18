@@ -12,7 +12,7 @@ import school.cesar.gymflow.infrastructure.persistence.entity.NotificacaoEntity;
 
 public interface NotificacaoJpaRepository extends JpaRepository<NotificacaoEntity, Long> {
 
-    boolean existsByMatriculaIdAndVencimento(Long matriculaId, LocalDate vencimento);
+    List<NotificacaoEntity> findByMatriculaIdAndVencimento(Long matriculaId, LocalDate vencimento);
 
     List<NotificacaoEntity> findByAlunoIdOrderByEnviadaEmDesc(Long alunoId);
 

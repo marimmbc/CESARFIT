@@ -44,6 +44,11 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
         e.status = s.status();
         e.observacao = s.observacao();
         e.criadaEm = s.criadaEm();
+        e.propostasFeitas = s.propostasFeitas();
+        e.pesoKg = s.resultado() == null ? null : s.resultado().pesoKg();
+        e.alturaM = s.resultado() == null ? null : s.resultado().alturaM();
+        e.percentualDeGordura = s.resultado() == null ? null : s.resultado().percentualDeGordura();
+        e.realizadaEm = s.realizadaEm();
         return avaliacao(avaliacoes.save(e));
     }
 
@@ -64,7 +69,9 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
 
     private static SolicitacaoDeAvaliacao avaliacao(AvaliacaoEntity e) {
         return new SolicitacaoDeAvaliacao(e.id, e.alunoId, e.dataDesejada, e.dataProposta, e.dataAgendada,
-                e.status, e.observacao, e.criadaEm);
+                e.status, e.observacao, e.criadaEm, e.propostasFeitas == null ? 0 : e.propostasFeitas,
+                e.pesoKg == null ? null : new school.cesar.gymflow.domain.atendimento.model.ResultadoDeAvaliacao(
+                        e.pesoKg, e.alturaM, e.percentualDeGordura), e.realizadaEm);
     }
 
     /* ---------- substituicao ---------- */
@@ -83,6 +90,8 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
         e.resposta = s.resposta();
         e.criadaEm = s.criadaEm();
         e.respondidaEm = s.respondidaEm();
+        e.categoria = s.categoria();
+        e.automatica = s.automatica();
         return substituicao(substituicoes.save(e));
     }
 
@@ -103,7 +112,8 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
 
     private static SolicitacaoDeSubstituicao substituicao(SubstituicaoEntity e) {
         return new SolicitacaoDeSubstituicao(e.id, e.alunoId, e.fichaId, e.posicao, e.exercicioAtual, e.motivo,
-                e.status, e.exercicioNovo, e.resposta, e.criadaEm, e.respondidaEm);
+                e.categoria, e.status, e.exercicioNovo, e.resposta, e.criadaEm, e.respondidaEm,
+                Boolean.TRUE.equals(e.automatica));
     }
 
     /* ---------- atendimento ---------- */
@@ -121,6 +131,12 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
         e.orientacao = s.orientacao();
         e.abertaEm = s.abertaEm();
         e.concluidaEm = s.concluidaEm();
+        e.tipo = s.tipo();
+        e.assumidoEm = s.assumidoEm();
+        e.transferencias = s.transferencias();
+        e.nota = s.nota();
+        e.comentario = s.comentario();
+        e.automatico = s.automatico();
         return atendimento(atendimentos.save(e));
     }
 
@@ -140,7 +156,8 @@ public class SolicitacaoRepositorioJpa implements RepositorioDeSolicitacoes {
     }
 
     private static SolicitacaoDeAtendimento atendimento(AtendimentoEntity e) {
-        return new SolicitacaoDeAtendimento(e.id, e.alunoId, e.fichaId, e.exercicio, e.motivo, e.status,
-                e.instrutor, e.orientacao, e.abertaEm, e.concluidaEm);
+        return new SolicitacaoDeAtendimento(e.id, e.alunoId, e.fichaId, e.exercicio, e.motivo, e.tipo, e.status,
+                e.instrutor, e.orientacao, e.abertaEm, e.assumidoEm, e.concluidaEm,
+                e.transferencias == null ? 0 : e.transferencias, e.nota, e.comentario, Boolean.TRUE.equals(e.automatico));
     }
 }

@@ -1,31 +1,39 @@
 # Prototipos de alta fidelidade
 
-Ferramenta: **Figma**. Link do arquivo compartilhavel: `<COLAR AQUI O LINK DO FIGMA>`
-Exportar os PNGs das telas para `docs/prototipos/` e referenciar abaixo.
+As telas abaixo sao capturas do sistema funcionando, com dados de exemplo (1280 x 860).
+Os arquivos estao em `docs/prototipos/`.
 
-## Telas previstas
+> Se o grupo tambem tiver o prototipo no Figma, colar o link aqui: `<link do Figma>`
 
-| Tela | Historia atendida | Elementos principais |
+## Equipe (recepcao e sala de treino)
+
+| Tela | Funcionalidades | Imagem |
 |---|---|---|
-| Login da recepcao | - | e-mail, senha, botao entrar |
-| Cadastro de aluno | H1 | nome, CPF, telefone, e-mail, nascimento, objetivo; botoes Ver/Editar/Excluir |
-| Contratacao de plano | H2 | Plano Semanal (R$ 50,00) e Plano Mensal (R$ 99,00), valor calculado automaticamente, filtros |
-| Detalhe da matricula | H3, H4, H5 | status, vigencia, historico de pagamentos, botoes renovar/cancelar |
-| Painel (dashboard) | H9 | indicadores de alunos, matriculas ativas, receita e ultimas matriculas |
-| Ficha do aluno | H6, H7, H8 | lista de itens, destaque do proximo pendente, checkbox de conclusao |
-| Dashboard do gestor | - | matriculas ativas, inadimplencia, frequencia diaria |
+| Login | F11 Autenticacao e sessao | ![Login](prototipos/01-login.jpg) |
+| Painel | consulta (F4) | ![Painel](prototipos/02-painel.jpg) |
+| Alunos e matriculas - lista | F1 Gerenciamento de alunos | ![Alunos](prototipos/03-alunos-lista.jpg) |
+| Alunos - menor de idade | F1 (responsavel legal) | ![Menor](prototipos/04-aluno-menor-responsavel.jpg) |
+| Matriculas e avisos | F4 Matriculas, F2 Regua de avisos | ![Matriculas](prototipos/05-matriculas-e-avisos.jpg) |
+| Registrar pagamento | F6 Pagamentos | ![Pagamento](prototipos/06-registrar-pagamento.jpg) |
+| Detalhe da matricula | F5 Trancamento, F6 Parcelamento | ![Trancamento](prototipos/07-matricula-trancamento.jpg) |
+| Estornar pagamento | F7 Estorno | ![Estorno](prototipos/08-estorno.jpg) |
+| Treinos - ficha | F9 Geracao da ficha A/B/C | ![Ficha](prototipos/09-treinos-ficha.jpg) |
+| Treinos - feedbacks | F15 Feedback (consulta da equipe) | ![Feedbacks](prototipos/10-treinos-feedbacks.jpg) |
+| Exercicios | F10 Catalogo | ![Catalogo](prototipos/11-exercicios.jpg) |
+| Solicitacoes | F12, F13, F16, F8 | ![Solicitacoes](prototipos/12-solicitacoes.jpg) |
+| Analisar contestacao | F8 Contestacao | ![Contestacao](prototipos/13-analisar-contestacao.jpg) |
+| Equipamentos | F3 Ocorrencias | ![Equipamentos](prototipos/14-equipamentos.jpg) |
+| Eventos | consulta (trilha e eventos de dominio) | ![Eventos](prototipos/15-eventos.jpg) |
 
-| Login (aluno e equipe) | - | numero da matricula, senha, liquid glass |
-| Area do aluno | H17-H20, H11, H15 | frequencia (foguinho), treino da semana com "Trocar", pos-treino, solicitacoes, financeiro com "Contestar", aviso de vencimento |
-| Catalogo de exercicios (equipe) | H16 | formulario, filtros por grupo, ativar/desativar, excluir |
-| Solicitacoes (equipe) | H15, H17, H18, H20 | indicadores de pendencias e quatro quadros com acoes de resposta |
-| Equipamentos (equipe) | H12 | registro do problema e fluxo Aberta -> Em andamento -> Resolvida |
-| Detalhe da matricula (equipe) | H13, H14 | pagamentos com Estornar, dados do cancelamento |
+## Area do aluno
+
+| Tela | Funcionalidades | Imagem |
+|---|---|---|
+| Frequencia e meus dados | F14 Check-in, X4 Troca de senha, F11 aviso de primeiro acesso | ![Frequencia](prototipos/16-aluno-frequencia-dados.jpg) |
+| Treino da semana | F9, X2 Execucao, X3 Montar treino, F13 botao Trocar | ![Treino](prototipos/17-aluno-treino-semana.jpg) |
+| Pos-treino, solicitacoes e financeiro | F15, F12, F16, F13, F6, F8 | ![Pos-treino](prototipos/18-aluno-pos-treino-solicitacoes-financeiro.jpg) |
 
 ## Fluxo navegavel
 
-`Login` -> `Cadastro de aluno` -> `Contratacao de plano` -> `Detalhe da matricula`
-`Painel (dashboard)` -> `Ficha do aluno`
-
-> Checklist de entrega: prototipo navegavel (prototype mode ligado), tipografia e
-> cores definidas, estados de erro (CPF invalido, acesso negado) desenhados.
+`Login` -> `Painel` -> `Alunos e matriculas` -> `Detalhe da matricula` (pagar, estornar, trancar)
+`Login` -> `Area do aluno` -> `Treino da semana` -> `Pos-treino` -> `Minhas solicitacoes`
