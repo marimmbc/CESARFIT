@@ -65,8 +65,8 @@
   <form id="form-senha" class="vidro janela-senha-corpo" novalidate>
     <h2>Trocar senha</h2>
     <label class="campo-vidro">Senha atual<input type="password" name="senhaAtual" required autocomplete="current-password"></label>
-    <label class="campo-vidro">Nova senha (mín. 6 caracteres)<input type="password" name="novaSenha" required minlength="6" autocomplete="new-password"></label>
-    <label class="campo-vidro">Repita a nova senha<input type="password" name="confirmacao" required minlength="6" autocomplete="new-password"></label>
+    <label class="campo-vidro">Nova senha (mín. 8 caracteres, com letras e números)<input type="password" name="novaSenha" required minlength="8" autocomplete="new-password"></label>
+    <label class="campo-vidro">Repita a nova senha<input type="password" name="confirmacao" required minlength="8" autocomplete="new-password"></label>
     <div class="acoes-janela">
       <button type="button" class="botao-vidro fantasma" id="btn-fechar-senha">Cancelar</button>
       <button type="submit" class="botao-vidro primario-vidro">Salvar senha</button>
@@ -130,6 +130,11 @@
             <option value="CONDICIONAMENTO">Condicionamento</option>
           </select>
         </label>
+        <fieldset id="campos-responsavel" class="oculto" style="border:0;padding:0;margin:0;display:grid;gap:10px">
+          <p class="dica">Aluno menor de 18 anos: informe o responsável legal.</p>
+          <label>Nome do responsável*<input name="responsavelNome" type="text" maxlength="120"></label>
+          <label>CPF do responsável*<input name="responsavelCpf" type="text" maxlength="14" placeholder="111.222.333-44"></label>
+        </fieldset>
         <button type="submit" class="primario" id="btn-salvar-aluno">Cadastrar aluno</button>
         <button type="button" class="secundario oculto" id="btn-cancelar-aluno">Cancelar edição</button>
       </form>
@@ -166,7 +171,7 @@
       </form>
       <div class="bloco-extra">
         <h3>Avisos de vencimento</h3>
-        <p class="dica">Todo dia às 8h o sistema avisa quem vence em até 3 dias (um aviso por vencimento).</p>
+        <p class="dica">Todo dia às 8h o sistema percorre a régua de avisos: lembrete (7 dias antes), vence em breve (3 a 1 dia), vence hoje, vencida e último aviso. Cada etapa é enviada uma única vez.</p>
         <button type="button" class="secundario" id="btn-verificar-vencimentos">Verificar agora</button>
         <div id="lista-avisos"></div>
       </div>
@@ -266,9 +271,18 @@
       <form id="form-ocorrencia" novalidate>
         <label>Equipamento*<input name="equipamento" type="text" required maxlength="80" placeholder="Esteira 3"></label>
         <label>Descrição do problema*<textarea name="descricao" rows="4" maxlength="500" placeholder="Descreva o defeito (mín. 10 caracteres)"></textarea></label>
+        <label>Severidade*<select name="severidade">
+          <option value="BAIXA">Baixa · prazo 72h</option>
+          <option value="MEDIA" selected>Média · prazo 48h</option>
+          <option value="ALTA">Alta · prazo 24h · interdita o equipamento</option>
+          <option value="CRITICA">Crítica · prazo 4h · interdita o equipamento</option>
+        </select></label>
         <button type="submit" class="primario">Registrar ocorrência</button>
       </form>
-      <p class="dica">Fluxo: Aberta → Em andamento → Resolvida. Não é permitido abrir outra ocorrência para um equipamento que ainda tem problema pendente.</p>
+      <p class="dica">Fluxo: Aberta → Em andamento ⇄ Aguardando peça (SLA pausado) → Resolvida → reabertura em até 7 dias.
+        Alta e Crítica interditam o equipamento (trocas de exercício que usam ele são aprovadas automaticamente).
+        Com 2 ocorrências resolvidas em 30 dias, a próxima nasce reincidente e com severidade elevada.
+        Não é permitido abrir outra ocorrência para um equipamento que ainda tem problema pendente.</p>
     </div>
     <div class="coluna-dado">
       <div class="cabecalho-dado"><h2>Ocorrências</h2><span class="contador" id="contador-ocorrencias"></span></div>
@@ -277,6 +291,7 @@
           <option value="">Todas</option>
           <option value="ABERTA">Abertas</option>
           <option value="EM_ANDAMENTO">Em andamento</option>
+          <option value="AGUARDANDO_PECA">Aguardando peça</option>
           <option value="RESOLVIDA">Resolvidas</option>
         </select>
       </div>
