@@ -30,7 +30,7 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
 @Service
 public class ServicoDeConsultas {
 
-    private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+    private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final RepositorioDeAlunos repositorioDeAlunos;
     private final RepositorioDeMatriculas repositorioDeMatriculas;

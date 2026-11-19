@@ -16,4 +16,10 @@ public record MatriculaEfetivada(Long matriculaId, Long alunoId, String plano, L
     public String descricao() {
         return "Matricula " + matriculaId + " do aluno " + alunoId + " efetivada no " + plano;
     }
+
+    /** O caso de uso ja registra MATRICULA_EFETIVADA na trilha; aqui o evento so aciona as reacoes. */
+    @Override
+    public boolean registrarNaTrilha() {
+        return false;
+    }
 }

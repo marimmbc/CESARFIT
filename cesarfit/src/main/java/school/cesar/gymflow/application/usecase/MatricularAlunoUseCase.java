@@ -66,7 +66,8 @@ public class MatricularAlunoUseCase {
 
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.MATRICULA_EFETIVADA,
                 String.valueOf(salva.id()),
-                "Aluno " + aluno.nome() + " matriculado no " + plano.nome() + " por " + valor));
+                "Aluno(a) " + aluno.nome() + ", matricula " + salva.id() + ", matriculado(a) no " + plano.nome()
+                        + " por " + valor));
 
         // O contexto Treino reage a este evento e gera a ficha padrao A / B / C.
         barramento.postar(salva.efetivacao());

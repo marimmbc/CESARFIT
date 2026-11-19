@@ -28,9 +28,16 @@ public class BarramentoSincrono implements BarramentoDeEventos {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void postar(Evento evento) {
-        trilha.publicar(EventoDeDominio.de(evento.getClass().getSimpleName(), evento.referencia(), evento.descricao()));
+        if (evento.registrarNaTrilha()) {
+            trilha.publicar(EventoDeDominio.de(categoria(evento), evento.referencia(), evento.descricao()));
+        }
         manipuladores.orderedStream()
                 .filter(m -> m.tipo().isInstance(evento))
                 .forEach(m -> ((ManipuladorDeEvento) m).tratar(evento));
+    }
+
+    /** Mesmo formato das demais categorias da trilha: EquipamentoInterditado -> EQUIPAMENTO_INTERDITADO. */
+    static String categoria(Evento evento) {
+        return evento.getClass().getSimpleName().replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase();
     }
 }

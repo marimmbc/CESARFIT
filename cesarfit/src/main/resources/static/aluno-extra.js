@@ -229,7 +229,7 @@ function desenharPedidos() {
   const blocoAtendimento = atendimento
     ? `<div class="pedido">
         <div class="pedido-topo"><strong>Atendimento do instrutor</strong>${seloAluno(atendimento.status)}</div>
-        <p>${atendimento.exercicio ? `<b>${esc(atendimento.exercicio)}</b> · ` : ''}${esc(atendimento.motivo)}</p>
+        <p>${atendimento.exercicio ? `<b>${esc(acentuar(atendimento.exercicio))}</b> · ` : ''}${esc(atendimento.motivo)}</p>
         ${atendimento.instrutor ? `<p class="dica-vidro">${esc(atendimento.instrutor)} está vindo te ajudar.</p>`
           : `<p class="dica-vidro">Você é o <b>${atendimento.posicaoNaFila || '?'}º</b> da fila${atendimento.prioridade === 'ALTA' ? ' (prioridade alta)' : ''}.</p>
              <div class="pedido-acoes"><button class="botao-vidro fantasma" data-cancelar-atendimento="${atendimento.id}">Cancelar pedido</button></div>`}
@@ -239,7 +239,7 @@ function desenharPedidos() {
           <div class="pedido-topo"><strong>Chamar o instrutor</strong></div>
           <label class="campo-vidro">Sobre qual exercício? (opcional)
             <select name="posicao"><option value="">Treino em geral</option>
-              ${ficha.itens.map(i => `<option value="${i.posicao}">${esc(i.exercicio)}</option>`).join('')}
+              ${ficha.itens.map(i => `<option value="${i.posicao}">${esc(acentuar(i.exercicio))}</option>`).join('')}
             </select>
           </label>
           <label class="campo-vidro">Tipo
@@ -262,7 +262,7 @@ function desenharPedidos() {
   const blocoSubs = subs.length
     ? `<div class="pedido"><div class="pedido-topo"><strong>Trocas de exercício</strong></div>
         <ul class="lista-pedidos">${subs.map(s => `<li>
-          <div><b>${esc(s.exercicioAtual)}</b>${s.exercicioNovo ? ` → ${esc(s.exercicioNovo)}` : ''}
+          <div><b>${esc(acentuar(s.exercicioAtual))}</b>${s.exercicioNovo ? ` → ${esc(acentuar(s.exercicioNovo))}` : ''}
             ${s.resposta ? `<p class="dica-vidro">${esc(s.resposta)}</p>` : ''}</div>
           ${seloAluno(s.status)}</li>`).join('')}</ul></div>`
     : '<p class="dica-vidro">Para pedir a troca de um exercício, use o botão “Trocar” no treino da semana.</p>';
@@ -338,7 +338,7 @@ document.getElementById('cartao-treino').addEventListener('click', (evento) => {
   if (!botao || !areaAtual || !areaAtual.ficha) return;
   const posicao = Number(botao.dataset.trocar);
   const item = areaAtual.ficha.itens.find(i => i.posicao === posicao);
-  abrirJanelaAluno(`Trocar ${item ? item.exercicio : 'exercício'}`,
+  abrirJanelaAluno(`Trocar ${item ? acentuar(item.exercicio) : 'exercício'}`,
     `<p class="legenda">A equipe escolhe um exercício do mesmo grupo muscular e mantém séries e repetições.</p>
      <label class="campo-vidro">Por quê?
        <select name="categoria"><option value="DOR_OU_LESAO">Dor ou lesão (prioridade)</option>
@@ -478,7 +478,7 @@ document.getElementById('cartao-treino').addEventListener('click', async (evento
   } else if (ajustar) {
     const posicao = Number(ajustar.dataset.ajustar);
     const item = areaAtual.ficha.itens.find(i => i.posicao === posicao);
-    abrirJanelaAluno(`Ajustar ${item.exercicio}`, camposDeCarga(item.series, item.repeticoes), 'Salvar',
+    abrirJanelaAluno(`Ajustar ${acentuar(item.exercicio)}`, camposDeCarga(item.series, item.repeticoes), 'Salvar',
       async (form) => {
         const ficha = await api('PUT', `/api/area-aluno/ficha/itens/${posicao}`,
           { series: Number(form.series.value), repeticoes: Number(form.repeticoes.value) });
@@ -487,7 +487,7 @@ document.getElementById('cartao-treino').addEventListener('click', async (evento
   } else if (remover) {
     const posicao = Number(remover.dataset.remover);
     const item = areaAtual.ficha.itens.find(i => i.posicao === posicao);
-    if (!confirm(`Remover "${item.exercicio}" do treino ${item.divisao}?`)) return;
+    if (!confirm(`Remover "${acentuar(item.exercicio)}" do treino ${item.divisao}?`)) return;
     try {
       aplicarFicha(await api('DELETE', `/api/area-aluno/ficha/itens/${posicao}`), 'Exercício removido.');
     } catch (e) {
@@ -508,7 +508,7 @@ document.getElementById('cartao-treino').addEventListener('click', async (evento
        <label class="campo-vidro">Exercício
          <select name="exercicio">${grupos.map(g => `<optgroup label="${esc(nomeDoGrupo(g))}">
            ${lista.filter(e => e.grupoMuscular === g).map(e =>
-             `<option value="${e.id}">${esc(e.nome)}${e.equipamento ? ` · ${esc(e.equipamento)}` : ''}</option>`).join('')}
+             `<option value="${e.id}">${esc(acentuar(e.nome))}${e.equipamento ? ` · ${esc(acentuar(e.equipamento))}` : ''}</option>`).join('')}
          </optgroup>`).join('')}</select>
        </label>
        ${camposDeCarga(3, 12)}`,

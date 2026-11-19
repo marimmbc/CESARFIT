@@ -325,7 +325,7 @@ function desenharTreino() {
         <li class="exercicio ${item.concluido ? 'feito' : ''} ${!montandoTreino && proximoDoDia && proximoDoDia.posicao === item.posicao ? 'proximo' : ''}" style="--i:${i}">
           <span class="grupo-icone" aria-hidden="true">${ICONES_GRUPO[item.grupoMuscular] || '🏋️'}</span>
           <div>
-            <h3>${esc(item.exercicio)}</h3>
+            <h3>${esc(acentuar(item.exercicio))}</h3>
             <p>${esc(nomeDoGrupo(item.grupoMuscular))} · descanso de ${esc(item.descansoEmSegundos)}s</p>
           </div>
           <div class="carga-vidro">

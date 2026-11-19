@@ -29,7 +29,7 @@ async function api(metodo, url, corpo) {
 
 function avisar(mensagem, erro) {
   const caixa = document.getElementById('aviso');
-  caixa.textContent = mensagem;
+  caixa.textContent = moeda(mensagem);
   caixa.className = 'aviso visivel' + (erro ? ' erro' : '');
   clearTimeout(avisar.timer);
   avisar.timer = setTimeout(() => { caixa.className = 'aviso'; }, 4500);
@@ -39,19 +39,51 @@ async function tentar(acao) {
   try {
     await acao();
   } catch (e) {
-    avisar(e.message, true);
+    avisar(typeof traduzir === 'function' ? traduzir(e.message) : e.message, true);
   }
 }
 
 function esc(texto) {
-  return String(texto ?? '').replace(/[&<>"']/g, c =>
+  return moeda(String(texto ?? '')).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* So exibicao: "R$ 1320,00" -> "R$ 1.320,00". O servidor aceita os dois formatos. */
+function moeda(texto) {
+  return String(texto ?? '').replace(/R\$ ?(-?)(\d{4,})(,\d{2})/g,
+    (_, sinal, inteiro, centavos) => `R$ ${sinal}${inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}${centavos}`);
+}
+
+/* So exibicao: datas "2026-11-17" dentro de textos viram "17/11/2026". */
+function datasBR(texto) {
+  return String(texto ?? '').replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, '$3/$2/$1');
+}
+
+/* So exibicao: acentua nomes do catalogo gravados sem acento (o nome salvo nao muda). */
+const ACENTOS_CATALOGO = [
+  [/\bTriceps\b/g, 'Tríceps'], [/\bergometrica\b/g, 'ergométrica'], [/\bEliptico\b/g, 'Elíptico'],
+  [/\bFlexao de bracos\b/g, 'Flexão de braços'], [/\bElevacao\b/g, 'Elevação'], [/\btriangulo\b/g, 'triângulo'],
+  [/\bem pe\b/g, 'em pé'], [/\bMaquina\b/g, 'Máquina'],
+  /* textos de eventos */
+  [/\bMEDIA\b/g, 'Média'], [/\bCRITICA\b/g, 'Crítica'], [/\bBAIXA\b/g, 'Baixa'], [/\bALTA\b/g, 'Alta'],
+  [/\bMatricula\b/g, 'Matrícula'], [/\bmatricula\b/g, 'matrícula'], [/\brecepcao\b/g, 'recepção'],
+  [/\bavaliacao\b/g, 'avaliação'], [/\bvigencia\b/g, 'vigência'], [/\bsolicitacao\b/g, 'solicitação'],
+  [/\bOla\b/g, 'Olá'], [/\bHIPERTROFIA\b/g, 'Hipertrofia'], [/\bEMAGRECIMENTO\b/g, 'Emagrecimento'],
+  [/\bCONDICIONAMENTO\b/g, 'Condicionamento']
+];
+function acentuar(texto) {
+  return ACENTOS_CATALOGO.reduce((t, [de, para]) => t.replace(de, para), String(texto ?? ''));
 }
 
 function dataBR(iso) {
   if (!iso) return '—';
   const [a, m, d] = iso.split('-');
   return `${d}/${m}/${a}`;
+}
+
+/* botao invisivel que ocupa o lugar de uma acao indisponivel, para alinhar as linhas */
+function espacoReservado(rotulo) {
+  return `<button class="btn-mini espaco" type="button" tabindex="-1" aria-hidden="true" disabled>${rotulo}</button>`;
 }
 
 function hojeISO() {
@@ -142,7 +174,7 @@ async function carregarPainel() {
     <div class="indicador verde"><span>Matrículas ativas</span><strong>${p.matriculasAtivas}</strong></div>
     <div class="indicador"><span>Ativas no Plano Mensal</span><strong>${p.mensaisAtivas}</strong></div>
     <div class="indicador"><span>Ativas no Plano Anual</span><strong>${p.anuaisAtivas}</strong></div>
-    <div class="indicador verde"><span>Receita das matrículas ativas</span><strong>${esc(p.receitaDasAtivas)}</strong></div>
+    <div class="indicador verde"><span>Receita das matrículas ativas</span><strong class="valor-dinheiro">${esc(p.receitaDasAtivas)}</strong></div>
     <div class="indicador ambar"><span>Matrículas vencidas</span><strong>${p.matriculasVencidas}</strong></div>
     <div class="indicador vermelho"><span>Matrículas canceladas</span><strong>${p.matriculasCanceladas}</strong></div>
     <div class="indicador ambar"><span>Alunos sem matrícula ativa</span><strong>${p.alunosSemMatriculaAtiva}</strong></div>`;
@@ -186,15 +218,16 @@ function desenharTabelaAlunos(lista, busca) {
     return;
   }
   alvo.innerHTML = `<table><thead><tr>
-      <th>Nome</th><th>CPF</th><th>Telefone</th><th>Matrícula</th><th></th></tr></thead><tbody>
+      <th>#</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Matrícula</th><th></th></tr></thead><tbody>
     ${lista.map(a => `<tr class="${estado.editandoAlunoId === a.id ? 'em-edicao' : ''}">
+      <td>${a.id}</td>
       <td>${esc(a.nome)}<div class="contador">${esc(a.email)}</div></td>
       <td>${esc(a.cpf)}</td>
       <td>${esc(a.telefone)}</td>
       <td>${a.possuiMatriculaAtiva ? '<span class="etiqueta ATIVA">Ativa</span>' : '<span class="contador">sem matrícula ativa</span>'}</td>
       <td class="acoes-tabela">
         <button class="btn-mini" data-acao="ver-aluno" data-id="${a.id}">Ver</button>
-        <button class="btn-mini" data-acao="editar-aluno" data-id="${a.id}">Editar</button>
+        <button class="btn-mini editar" data-acao="editar-aluno" data-id="${a.id}">Editar</button>
         <button class="btn-mini perigo" data-acao="excluir-aluno" data-id="${a.id}">Excluir</button>
       </td></tr>`).join('')}
     </tbody></table>`;
@@ -340,6 +373,7 @@ async function verAluno(id) {
       <div class="cartao">
         <div class="linha-dado"><span><span class="etiqueta ${m.plano}">${esc(m.planoNome)}</span></span>
           <span class="etiqueta ${m.status}">${NOME_STATUS[m.status]}</span></div>
+        <div class="linha-dado"><span>Nº da matrícula</span><strong>${esc(m.id)}</strong></div>
         <div class="linha-dado"><span>Valor</span><strong>${esc(m.valorMensal)}</strong></div>
         <div class="linha-dado"><span>Vigência</span><span>${dataBR(m.inicio)} até ${dataBR(m.fim)}</span></div>
         <div class="linha-dado"><span>Total pago</span><span>${esc(m.totalPago)}</span></div>
@@ -376,7 +410,7 @@ function atualizarValorCalculado() {
   document.querySelectorAll('#lista-planos .plano').forEach(l =>
     l.dataset.escolhido = String(l.dataset.codigo === codigo));
   const plano = estado.planos.find(p => p.codigo === codigo);
-  document.getElementById('valor-calculado').textContent = plano ? plano.valor : '—';
+  document.getElementById('valor-calculado').textContent = plano ? moeda(plano.valor) : '—';
 }
 
 function marcarPlano(codigo) {
@@ -419,14 +453,15 @@ function desenharTabelaMatriculas(filtrado) {
       <td><strong>${esc(m.valorMensal)}</strong></td>
       <td>${dataBR(m.inicio)}<div class="contador">até ${dataBR(m.fim)}</div></td>
       <td><span class="etiqueta ${m.status}">${NOME_STATUS[m.status]}</span></td>
-      <td class="acoes-tabela">
+      <td class="acoes-tabela"><div class="acoes-grade">
         <button class="btn-mini" data-acao="detalhar-matricula" data-id="${m.id}">Detalhes</button>
-        <button class="btn-mini" data-acao="editar-matricula" data-id="${m.id}">Editar</button>
+        <button class="btn-mini editar" data-acao="editar-matricula" data-id="${m.id}">Editar</button>
         ${m.status !== 'CANCELADA' ? `<button class="btn-mini" data-acao="pagar-matricula" data-id="${m.id}">Pagar</button>
         <button class="btn-mini" data-acao="renovar-matricula" data-id="${m.id}">Renovar</button>
-        <button class="btn-mini perigo" data-acao="cancelar-matricula" data-id="${m.id}">Cancelar</button>` : ''}
+        <button class="btn-mini alerta" data-acao="cancelar-matricula" data-id="${m.id}">Cancelar</button>`
+        : `${espacoReservado('Pagar')}${espacoReservado('Renovar')}${espacoReservado('Cancelar')}`}
         <button class="btn-mini perigo" data-acao="excluir-matricula" data-id="${m.id}">Excluir</button>
-      </td></tr>`).join('')}
+      </div></td></tr>`).join('')}
     </tbody></table>`;
 }
 
@@ -476,7 +511,7 @@ function editarMatricula(id) {
   document.getElementById('campo-status').classList.remove('oculto');
   document.getElementById('titulo-form-matricula').textContent = `Editar matrícula #${id}`;
   const aviso = document.getElementById('aviso-edicao-matricula');
-  aviso.textContent = `Atual: ${m.planoNome} · ${m.valorMensal}. Ao trocar o plano, o valor é recalculado e salvo.`;
+  aviso.textContent = `Atual: ${m.planoNome} · ${moeda(m.valorMensal)}. Ao trocar o plano, o valor é recalculado e salvo.`;
   aviso.classList.remove('oculto');
   document.getElementById('btn-salvar-matricula').textContent = 'Salvar alterações';
   document.getElementById('btn-cancelar-matricula').classList.remove('oculto');
@@ -501,7 +536,7 @@ document.getElementById('btn-cancelar-matricula').addEventListener('click', () =
 async function excluirMatricula(id) {
   const m = estado.matriculas.find(x => x.id === id);
   if (!m) throw new Error('Matrícula não encontrada');
-  if (!confirm(`Tem certeza que deseja excluir esta matrícula?\n\n#${m.id} — ${m.alunoNome} · ${m.planoNome} · ${m.valorMensal}`)) return;
+  if (!confirm(`Tem certeza que deseja excluir esta matrícula?\n\n#${m.id} — ${m.alunoNome} · ${m.planoNome} · ${moeda(m.valorMensal)}`)) return;
   await api('DELETE', `/api/matriculas/${id}`);
   if (estado.editandoMatriculaId === id) sairEdicaoMatricula();
   avisar(`Matrícula #${id} excluída.`);
@@ -632,7 +667,7 @@ function desenharFicha() {
       ${ficha.itens.filter(i => (i.divisao || 'A') === d).map(i => `
         <div class="item ${i.concluido ? 'feito' : ''}">
           <div>
-            <div class="nome-ex">${esc(i.exercicio)}</div>
+            <div class="nome-ex">${esc(acentuar(i.exercicio))}</div>
             <div class="grupo">${esc(i.grupoMuscular)}</div>
           </div>
           <span class="carga">${i.series}x${i.repeticoes} · ${i.descansoEmSegundos}s</span>
@@ -668,7 +703,7 @@ async function carregarEventos() {
   alvo.innerHTML = `<table><thead><tr>
       <th>Quando</th><th>Evento</th><th>Detalhe</th></tr></thead><tbody>
     ${eventos.map(e => `<tr>
-      <td>${esc(e.momento)}</td><td>${esc(e.tipo)}</td><td>${esc(e.detalhe)}</td></tr>`).join('')}
+      <td class="sem-quebra">${esc(datasBR(e.momento))}</td><td>${esc(e.tipo)}</td><td>${esc(acentuar(datasBR(e.detalhe)))}</td></tr>`).join('')}
     </tbody></table>`;
 }
 

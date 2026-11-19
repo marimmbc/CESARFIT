@@ -11,4 +11,12 @@ public interface Evento {
 
     /** Descricao legivel do fato (para a trilha de auditoria). */
     String descricao();
+
+    /**
+     * Se o barramento deve copiar este evento para a trilha de auditoria.
+     * Falso quando o caso de uso ja registra o mesmo fato na trilha (evita linha duplicada).
+     */
+    default boolean registrarNaTrilha() {
+        return true;
+    }
 }

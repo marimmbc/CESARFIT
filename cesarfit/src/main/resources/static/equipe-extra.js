@@ -242,16 +242,16 @@ function desenharExercicios() {
   }
   alvo.innerHTML = `<table><thead><tr><th>Exercício</th><th>Grupo</th><th>Equipamento</th><th>Situação</th><th></th></tr></thead><tbody>
     ${lista.map(e => `<tr class="${estado.editandoExercicioId === e.id ? 'em-edicao' : ''} ${e.ativo ? '' : 'inativo'}">
-      <td><strong>${esc(e.nome)}</strong>${e.usadoEmFichas ? '<div class="contador">usado em fichas</div>' : ''}</td>
+      <td><strong>${esc(acentuar(e.nome))}</strong>${e.usadoEmFichas ? '<div class="contador">usado em fichas</div>' : ''}</td>
       <td>${esc(NOME_GRUPO[e.grupoMuscular] || e.grupoMuscular)}</td>
-      <td>${esc(e.equipamento || 'Peso corporal')}</td>
+      <td>${esc(acentuar(e.equipamento || 'Peso corporal'))}</td>
       <td><span class="etiqueta ${e.ativo ? 'ATIVA' : 'CANCELADA'}">${e.ativo ? 'Ativo' : 'Inativo'}</span></td>
-      <td class="acoes-tabela">
-        <button class="btn-mini" data-x="editar-exercicio" data-id="${e.id}">Editar</button>
+      <td class="acoes-tabela acoes-fixas">
+        <button class="btn-mini editar" data-x="editar-exercicio" data-id="${e.id}">Editar</button>
         ${e.ativo
           ? `<button class="btn-mini" data-x="desativar-exercicio" data-id="${e.id}">Desativar</button>`
           : `<button class="btn-mini" data-x="reativar-exercicio" data-id="${e.id}">Reativar</button>`}
-        ${e.usadoEmFichas ? '' : `<button class="btn-mini perigo" data-x="excluir-exercicio" data-id="${e.id}">Excluir</button>`}
+        ${e.usadoEmFichas ? espacoReservado('Excluir') : `<button class="btn-mini perigo" data-x="excluir-exercicio" data-id="${e.id}">Excluir</button>`}
       </td></tr>`).join('')}
     </tbody></table>`;
 }
@@ -511,9 +511,9 @@ ACOES_EXTRA['aprovar-substituicao'] = async (id) => {
     && e.nome.toLowerCase() !== s.exercicioAtual.toLowerCase());
   if (!opcoes.length) throw new Error('Não há outro exercício ativo deste grupo no catálogo');
   janelaComFormulario('Aprovar substituição',
-    `${esc(s.alunoNome)} · trocar <strong>${esc(s.exercicioAtual)}</strong> (${esc(NOME_GRUPO[s.grupoMuscular] || '')}). Séries e repetições são mantidas.`,
+    `${esc(s.alunoNome)} · trocar <strong>${esc(acentuar(s.exercicioAtual))}</strong> (${esc(NOME_GRUPO[s.grupoMuscular] || '')}). Séries e repetições são mantidas.`,
     `<label>Exercício substituto*<select name="exercicio">${opcoes.map(e =>
-      `<option value="${e.id}">${esc(e.nome)}${e.equipamento ? ` · ${esc(e.equipamento)}` : ''}</option>`).join('')}</select></label>
+      `<option value="${e.id}">${esc(acentuar(e.nome))}${e.equipamento ? ` · ${esc(acentuar(e.equipamento))}` : ''}</option>`).join('')}</select></label>
      <label>Observação (opcional)<input name="obs" type="text" maxlength="300"></label>`,
     'Aprovar e trocar na ficha', async (form) => {
       await api('POST', `/api/substituicoes/${id}/aprovacao`, { exercicioId: Number(form.exercicio.value), observacao: form.obs.value.trim() });
