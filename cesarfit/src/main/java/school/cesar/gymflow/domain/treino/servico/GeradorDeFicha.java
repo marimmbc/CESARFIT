@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import school.cesar.gymflow.domain.matricula.model.Aluno;
+import school.cesar.gymflow.domain.matricula.model.Objetivo;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 import school.cesar.gymflow.domain.treino.model.Exercicio;
 import school.cesar.gymflow.domain.treino.model.FichaDeTreino;
@@ -19,6 +19,8 @@ import school.cesar.gymflow.domain.treino.model.ItemDeTreino;
  * Padrao Template Method: o algoritmo de geracao e fixo (validar, preencher as vagas com
  * exercicios ATIVOS do catalogo, montar a ficha); cada objetivo define suas vagas e a validade.
  * Toda ficha nasce com a divisao padrao de treino A / B / C.
+ * O contexto Treino recebe apenas a identidade do aluno e o objetivo (conformista em relacao a
+ * Matricula), sem depender da entidade Aluno de outro agregado.
  */
 public abstract class GeradorDeFicha {
 
@@ -27,8 +29,8 @@ public abstract class GeradorDeFicha {
                           int descanso) {
     }
 
-    public final FichaDeTreino gerar(Aluno aluno, List<Exercicio> catalogo) {
-        validar(aluno);
+    public final FichaDeTreino gerar(Long alunoId, Objetivo objetivo, List<Exercicio> catalogo) {
+        validar(alunoId, objetivo);
         List<Exercicio> ativos = catalogo == null ? List.of() : catalogo.stream()
                 .filter(Exercicio::ativo)
                 .sorted(Comparator.comparing(Exercicio::id, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -46,7 +48,7 @@ public abstract class GeradorDeFicha {
             throw new RegraDeNegocioException("Ficha gerada sem exercicios: cadastre exercicios ativos no catalogo");
         }
         LocalDate hoje = LocalDate.now();
-        FichaDeTreino ficha = new FichaDeTreino(null, aluno.id(), aluno.objetivo(),
+        FichaDeTreino ficha = new FichaDeTreino(null, alunoId, objetivo,
                 hoje, hoje.plusWeeks(semanasDeValidade()), itens);
         aoFinalizar(ficha);
         return ficha;
@@ -63,8 +65,8 @@ public abstract class GeradorDeFicha {
                 .findFirst();
     }
 
-    protected void validar(Aluno aluno) {
-        if (aluno == null || aluno.id() == null) {
+    protected void validar(Long alunoId, Objetivo objetivo) {
+        if (alunoId == null || objetivo == null) {
             throw new RegraDeNegocioException("Aluno invalido para geracao de ficha");
         }
     }

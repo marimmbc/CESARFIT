@@ -3,9 +3,7 @@ package school.cesar.gymflow.application.usecase;
 import java.util.Iterator;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 import school.cesar.gymflow.domain.treino.model.FichaDeTreino;
@@ -16,7 +14,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  * Caso de uso: consultar o proximo exercicio pendente (complexidade baixa).
  * Consome o Iterator publicado pelo agregado FichaDeTreino.
  */
-@Service
 public class ConsultarProximoExercicioUseCase {
 
     private final RepositorioDeFichas repositorioDeFichas;
@@ -25,7 +22,7 @@ public class ConsultarProximoExercicioUseCase {
         this.repositorioDeFichas = repositorioDeFichas;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Optional<Respostas.ItemResumo> executar(Long fichaId) {
         FichaDeTreino ficha = repositorioDeFichas.porId(fichaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Ficha nao encontrada"));

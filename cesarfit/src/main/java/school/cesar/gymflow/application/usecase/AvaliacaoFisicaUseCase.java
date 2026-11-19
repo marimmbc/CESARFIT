@@ -6,9 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.atendimento.model.ResultadoDeAvaliacao;
@@ -29,7 +27,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * - intervalo minimo de 30 dias apos a ultima avaliacao realizada;
  * - 2 faltas nos ultimos 90 dias bloqueiam novos agendamentos por 30 dias desde a ultima falta.
  */
-@Service
 public class AvaliacaoFisicaUseCase {
 
     public static final int DIAS_ENTRE_AVALIACOES = 30;
@@ -53,7 +50,7 @@ public class AvaliacaoFisicaUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo solicitar(Long alunoId, Comandos.SolicitarAvaliacao comando) {
         LocalDateTime agora = relogio.agora();
         if (matriculas.vigentePorAluno(alunoId).isEmpty()) {
@@ -83,7 +80,7 @@ public class AvaliacaoFisicaUseCase {
         return salvar(SolicitacaoDeAvaliacao.solicitar(alunoId, comando.dataHora(), agora), "solicitada");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo confirmar(Long id, String observacao) {
         SolicitacaoDeAvaliacao s = buscar(id);
         exigirHorarioLivre(s.dataDesejada(), s.id());
@@ -91,7 +88,7 @@ public class AvaliacaoFisicaUseCase {
         return salvar(s, "confirmada para " + s.dataAgendada().format(BR));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo proporHorario(Long id, Comandos.ResponderAvaliacao comando) {
         SolicitacaoDeAvaliacao s = buscar(id);
         if (comando.novaDataHora() != null) {
@@ -101,28 +98,28 @@ public class AvaliacaoFisicaUseCase {
         return salvar(s, "novo horario proposto: " + s.dataProposta().format(BR));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo aceitarProposta(Long alunoId, Long id) {
         SolicitacaoDeAvaliacao s = doAluno(alunoId, id);
         s.aceitarProposta(relogio.agora());
         return salvar(s, "proposta aceita pelo aluno");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo recusarProposta(Long alunoId, Long id) {
         SolicitacaoDeAvaliacao s = doAluno(alunoId, id);
         s.recusarProposta();
         return salvar(s, "proposta recusada pelo aluno");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo cancelar(Long alunoId, Long id) {
         SolicitacaoDeAvaliacao s = doAluno(alunoId, id);
         s.cancelar(relogio.agora());
         return salvar(s, "cancelada pelo aluno");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo registrarResultado(Long id, Comandos.RegistrarResultadoDeAvaliacao comando) {
         SolicitacaoDeAvaliacao s = buscar(id);
         if (comando.pesoKg() == null || comando.alturaM() == null) {
@@ -134,20 +131,20 @@ public class AvaliacaoFisicaUseCase {
         return salvar(s, "realizada: IMC " + medidas.imc() + " (" + medidas.classificacao() + ")");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AvaliacaoResumo registrarFalta(Long id) {
         SolicitacaoDeAvaliacao s = buscar(id);
         s.registrarFalta(relogio.agora());
         return salvar(s, "aluno nao compareceu");
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.AvaliacaoResumo> doAluno(Long alunoId) {
         String nome = nomes.de(alunoId);
         return solicitacoes.avaliacoesDoAluno(alunoId).stream().map(a -> resumo(a, nome)).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.AvaliacaoResumo> todas() {
         Map<Long, String> mapa = nomes.mapa();
         return solicitacoes.avaliacoes().stream().map(a -> resumo(a, mapa.getOrDefault(a.alunoId(), "-"))).toList();

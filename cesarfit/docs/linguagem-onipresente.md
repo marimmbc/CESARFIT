@@ -4,38 +4,39 @@
 
 A GymFlow e uma academia de bairro que hoje controla alunos em planilhas. O sistema
 substitui esse controle: a **recepcao** cadastra o **aluno**, vende um **plano**,
-recebe a **mensalidade** e controla as **matriculas**; o **professor** prescreve a
-**ficha de treino**; o aluno registra a **execucao** de cada **item de treino**.
+recebe os **pagamentos** e controla as **matriculas**; ao efetivar a matricula o sistema gera
+a **ficha de treino** do aluno; o **instrutor** acompanha o treino e atende os pedidos de ajuda;
+o aluno registra a **execucao** de cada **item de treino**.
 
 ## Termos (usados identicamente na conversa, no codigo e nos testes)
 
 | Termo | Significado no dominio | Onde aparece no codigo |
 |---|---|---|
-| Aluno | Pessoa fisica vinculada a academia, com CPF unico e um objetivo declarado | `domain.matricula.model.Aluno` |
+| Aluno | Pessoa fisica vinculada a academia, com CPF e e-mail unicos e um objetivo declarado | `domain.matricula.model.Aluno` |
 | Objetivo | Meta do aluno: hipertrofia, emagrecimento ou condicionamento | `Objetivo` |
-| Plano | Produto vendido: nome, valor mensal e modalidade | `domain.matricula.plano.PlanoBase` |
-| Plano | Somente dois: Plano Semanal (7 dias, R$ 50,00) e Plano Mensal (1 mes, R$ 99,00) | `Modalidade` |
-| Matricula | Vinculo vigente entre aluno e plano, com inicio, fim e status | `Matricula` |
+| Plano | Somente dois: Plano Mensal (1 mes, R$ 120,00) e Plano Anual (12 meses, R$ 1320,00) | `Modalidade` |
+| Matricula | Vinculo vigente entre aluno e plano, com inicio, fim e situacao (ativa, vencida, cancelada) | `Matricula` |
 | Vigencia | Periodo em que a matricula autoriza o acesso | `Matricula.estaVigenteEm` |
 | Mensalidade | Valor do plano contratado, recalculado sempre que o plano muda | `Matricula.valorMensal` |
-| Politica de preco | Regra que define o valor de cada plano (Semanal, Mensal) | `politica.PoliticaDePreco` |
-| Pagamento | Quitacao de uma mensalidade | `Pagamento` |
-| Ficha de treino | Conjunto ordenado de itens prescritos para um periodo | `treino.model.FichaDeTreino` |
+| Politica de preco | Regra que define o valor de cada plano (Mensal, Anual) | `politica.PoliticaDePreco`, `PrecoMensal`, `PrecoAnual` |
+| Pagamento | Quitacao do valor devido da matricula (com multa e juros quando em atraso) | `Pagamento` |
+| Ficha de treino | Conjunto ordenado de itens de treino, dividido em A, B e C | `treino.model.FichaDeTreino` |
 | Item de treino | Exercicio com series, repeticoes e descanso | `ItemDeTreino` |
 | Item pendente | Item ainda nao concluido pelo aluno | iterador `IteradorDePendentes` |
+| Instrutor | Profissional da sala de treino que atende os pedidos de ajuda do aluno | `SolicitacaoDeAtendimento.instrutor` |
 
 ## Regras de negocio principais
 
-1. Idade minima para matricula: 16 anos.
-2. CPF e unico por aluno.
-3. Um aluno nao pode ter duas matriculas vigentes ao mesmo tempo.
-4. A mensalidade e a **menor** entre as politicas aplicaveis ao aluno.
-5. Plano Semanal custa R$ 50,00 e Plano Mensal custa R$ 99,00; ao trocar o plano o valor e recalculado e salvo.
-6. Pagamento menor que a mensalidade vigente e recusado.
+1. Idade do aluno: de 16 a 100 anos (16 e 17 anos exigem responsavel legal).
+2. CPF e e-mail sao unicos por aluno; o CPF nao muda depois do cadastro.
+3. Um aluno nao pode ter duas matriculas ativas ao mesmo tempo.
+4. O valor da matricula vem da politica de preco do plano: Mensal R$ 120,00 e Anual R$ 1320,00.
+5. Ao trocar de plano o valor e recalculado e salvo; o valor pago e nao usado vira credito.
+6. O pagamento deve ser do valor exato devido; so em dinheiro aceita valor maior (com troco).
 7. Matricula cancelada nao aceita pagamento nem renovacao.
-8. Sem matricula ativa o aluno nao recebe ficha de treino e aluno com matricula ativa nao pode ser excluido.
-9. Reentrada em menos de 5 minutos e bloqueada.
-10. Ficha de treino so e gerada para aluno com matricula vigente.
+8. Sem matricula ativa o aluno nao recebe ficha de treino; aluno com matricula ativa nao pode ser excluido.
+9. Check-in: um por dia, das 6h as 22h, so com matricula vigente, nao trancada e sem pagamento pendente.
+10. A ficha de treino e gerada automaticamente ao efetivar a matricula; a ficha anterior e arquivada.
 
 ## Acesso e frequência
 
@@ -55,7 +56,7 @@ recebe a **mensalidade** e controla as **matriculas**; o **professor** prescreve
 | Catalogo de exercicios | Lista de exercicios da academia. So exercicios **ativos** entram em fichas novas e em substituicoes. |
 | Exercicio em uso | Exercicio que ja aparece em alguma ficha: nao muda de nome/grupo e nao pode ser excluido, apenas desativado. |
 | Vaga da ficha | Posicao da ficha definida pelo objetivo (grupo, exercicio preferido, series, repeticoes, descanso). |
-| Aviso de vencimento | Mensagem enviada quando a matricula ativa vence em ate 3 dias. Um aviso por vencimento. |
+| Aviso de vencimento | Regua de 5 etapas: Lembrete (7 dias antes), Vence em breve (3 a 1 dia), Vence hoje, Matricula vencida e Ultimo aviso (ate 15 dias depois). Cada etapa e enviada uma unica vez. |
 | Ocorrencia de equipamento | Problema registrado em um equipamento: Aberta, Em andamento, Resolvida (com solucao). |
 | Justificativa de cancelamento | Motivo obrigatorio do cancelamento; a data da solicitacao fica registrada. |
 | Estorno | Devolucao de um pagamento com motivo. O valor deixa de contar no total pago; nao ha estorno duplicado. |

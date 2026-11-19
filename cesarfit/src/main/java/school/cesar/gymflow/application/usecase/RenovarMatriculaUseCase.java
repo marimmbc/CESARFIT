@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -13,7 +11,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: renovar matricula (complexidade baixa). */
-@Service
 public class RenovarMatriculaUseCase {
 
     private final RepositorioDeMatriculas repositorioDeMatriculas;
@@ -28,7 +25,7 @@ public class RenovarMatriculaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Long matriculaId) {
         Matricula matricula = repositorioDeMatriculas.porId(matriculaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));

@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -23,7 +21,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * troco so em dinheiro, parcelamento so no credito e no plano Anual, credito de troca de plano abatido
  * e renovacao automatica da vigencia quando o pagamento e feito em atraso.
  */
-@Service
 public class RegistrarPagamentoUseCase {
 
     private final RepositorioDeMatriculas repositorioDeMatriculas;
@@ -40,7 +37,7 @@ public class RegistrarPagamentoUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Comandos.RegistrarPagamento comando) {
         Matricula matricula = repositorioDeMatriculas.porId(comando.matriculaId())
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));

@@ -18,9 +18,9 @@ ContextMap GymFlowMapa {
 }
 
 Domain Academia {
-  Subdomain GestaoDeMatriculas { type = CORE_DOMAIN domainVisionStatement = "Alunos, planos, matriculas, renovacao, cancelamento e avisos de vencimento" }
-  Subdomain Financeiro { type = SUPPORTING_DOMAIN domainVisionStatement = "Pagamentos, estornos e contestacoes de cobranca" }
-  Subdomain Treinamento { type = CORE_DOMAIN domainVisionStatement = "Catalogo de exercicios, fichas, presenca e feedback pos-treino" }
+  Subdomain GestaoDeMatriculas { type = SUPPORTING_DOMAIN domainVisionStatement = "Alunos, planos, matriculas, pagamentos e estornos, renovacao, cancelamento e avisos de vencimento" }
+  Subdomain Financeiro { type = SUPPORTING_DOMAIN domainVisionStatement = "Contestacoes de cobranca; os pagamentos e estornos pertencem ao agregado Matricula" }
+  Subdomain Treinamento { type = CORE_DOMAIN domainVisionStatement = "Subdominio principal: ficha de treino por objetivo, catalogo de exercicios, presenca e feedback pos-treino; e o que diferencia a academia" }
   Subdomain AtendimentoAoAluno { type = SUPPORTING_DOMAIN domainVisionStatement = "Avaliacao fisica, substituicao de exercicio e atendimento do instrutor" }
   Subdomain OperacaoDaAcademia { type = SUPPORTING_DOMAIN domainVisionStatement = "Problemas de equipamentos" }
   Subdomain ControleDeAcesso { type = GENERIC_SUBDOMAIN domainVisionStatement = "Login, sessao e senha" }

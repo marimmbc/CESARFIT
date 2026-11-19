@@ -3,9 +3,7 @@ package school.cesar.gymflow.application.usecase;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeAlunos;
@@ -24,7 +22,6 @@ import school.cesar.gymflow.domain.treino.servico.GeradorDeFicha;
  * Caso de uso: gerar ficha de treino (complexidade alta).
  * Usa Template Method para montar a ficha conforme o objetivo do aluno.
  */
-@Service
 public class GerarFichaDeTreinoUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -45,7 +42,7 @@ public class GerarFichaDeTreinoUseCase {
         this.repositorioDeExercicios = repositorioDeExercicios;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.FichaResumo executar(Long alunoId) {
         Aluno aluno = repositorioDeAlunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));
@@ -54,7 +51,7 @@ public class GerarFichaDeTreinoUseCase {
                         "Aluno sem matricula vigente nao pode receber ficha"));
 
         GeradorDeFicha gerador = FabricaDeGerador.para(aluno.objetivo());
-        FichaDeTreino ficha = gerador.gerar(aluno, repositorioDeExercicios.ativos());
+        FichaDeTreino ficha = gerador.gerar(aluno.id(), aluno.objetivo(), repositorioDeExercicios.ativos());
         arquivarFichaAtiva(alunoId);
         FichaDeTreino salva = repositorioDeFichas.salvar(ficha);
 

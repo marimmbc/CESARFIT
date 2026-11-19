@@ -1,13 +1,10 @@
 package school.cesar.gymflow.application.reacao;
 
-import org.springframework.stereotype.Component;
-
 import school.cesar.gymflow.domain.atendimento.repositorio.RepositorioDeEquipamentosIndisponiveis;
 import school.cesar.gymflow.domain.operacao.evento.EquipamentoInterditado;
 import school.cesar.gymflow.domain.shared.evento.ManipuladorDeEvento;
 
 /** Contexto Atendimento reage a Operacao: anota o equipamento interditado na sua propria visao. */
-@Component
 public class MarcarEquipamentoIndisponivel implements ManipuladorDeEvento<EquipamentoInterditado> {
 
     private final RepositorioDeEquipamentosIndisponiveis indisponiveis;

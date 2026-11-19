@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeMatriculas;
@@ -15,7 +13,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * Funcionalidade (parte de "Renovacao e alteracao de plano", alta): trancamento da matricula Anual.
  * Regras em {@link Matricula#trancar} e {@link Matricula#destrancar}.
  */
-@Service
 public class TrancamentoDeMatriculaUseCase {
 
     private final RepositorioDeMatriculas matriculas;
@@ -31,7 +28,7 @@ public class TrancamentoDeMatriculaUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo trancar(Long matriculaId, Integer dias) {
         Matricula m = buscar(matriculaId);
         if (dias == null) {
@@ -45,7 +42,7 @@ public class TrancamentoDeMatriculaUseCase {
         return Resumos.matricula(salva, nomes.de(salva.alunoId()));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo destrancar(Long matriculaId) {
         Matricula m = buscar(matriculaId);
         int devolvidos = m.destrancar(relogio.hoje());

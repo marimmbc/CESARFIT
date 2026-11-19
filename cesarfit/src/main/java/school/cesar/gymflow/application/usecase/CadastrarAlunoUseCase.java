@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -15,7 +13,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: cadastrar aluno com validacoes (complexidade media - Integrante 1). */
-@Service
 public class CadastrarAlunoUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -26,7 +23,7 @@ public class CadastrarAlunoUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AlunoResumo executar(Comandos.SalvarAluno comando) {
         if (comando == null) {
             throw new RegraDeNegocioException("Dados do aluno nao informados");

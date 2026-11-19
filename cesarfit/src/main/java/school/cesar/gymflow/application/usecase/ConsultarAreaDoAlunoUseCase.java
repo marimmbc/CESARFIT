@@ -6,9 +6,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -21,7 +19,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
 import school.cesar.gymflow.domain.treino.repositorio.RepositorioDePresencas;
 
 /** Monta a area do aluno: dados pessoais, matricula, ficha da semana e frequencia. */
-@Service
 public class ConsultarAreaDoAlunoUseCase {
 
     private static final String[] ROTULOS = {"Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"};
@@ -39,7 +36,7 @@ public class ConsultarAreaDoAlunoUseCase {
         this.presencas = presencas;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.AreaDoAluno executar(Long alunoId) {
         Aluno aluno = alunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));
@@ -56,7 +53,7 @@ public class ConsultarAreaDoAlunoUseCase {
     }
 
     /** Garante que o aluno so mexe na propria ficha. */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public boolean fichaPertenceAoAluno(Long fichaId, Long alunoId) {
         return fichas.porId(fichaId).map(f -> alunoId.equals(f.alunoId())).orElse(false);
     }

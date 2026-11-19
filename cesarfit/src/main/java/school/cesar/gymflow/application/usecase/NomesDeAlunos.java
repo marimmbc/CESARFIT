@@ -3,13 +3,10 @@ package school.cesar.gymflow.application.usecase;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeAlunos;
 
 /** Resolve o nome do aluno para as listagens (com cache por chamada). */
-@Component
 public class NomesDeAlunos {
 
     private final RepositorioDeAlunos alunos;

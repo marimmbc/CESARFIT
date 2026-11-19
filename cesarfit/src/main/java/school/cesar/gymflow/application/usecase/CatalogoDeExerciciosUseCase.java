@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
@@ -20,7 +18,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  * Regras: nome unico; exercicio usado em fichas nao muda nome/grupo nem pode ser excluido (so desativado);
  * nao se desativa o ultimo exercicio ativo de um grupo, pois o gerador de fichas depende dele.
  */
-@Service
 public class CatalogoDeExerciciosUseCase {
 
     private final RepositorioDeExercicios exercicios;
@@ -34,12 +31,12 @@ public class CatalogoDeExerciciosUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.ExercicioResumo> listar() {
         return exercicios.todos().stream().map(this::resumo).toList();
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ExercicioResumo incluir(Comandos.SalvarExercicio comando) {
         Exercicio novo = Exercicio.novo(comando.nome(), grupo(comando.grupoMuscular()), comando.equipamento());
         exigirNomeLivre(novo.nome(), null);
@@ -48,7 +45,7 @@ public class CatalogoDeExerciciosUseCase {
         return resumo(salvo);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ExercicioResumo editar(Long id, Comandos.SalvarExercicio comando) {
         Exercicio exercicio = buscar(id);
         GrupoMuscular novoGrupo = grupo(comando.grupoMuscular());
@@ -62,7 +59,7 @@ public class CatalogoDeExerciciosUseCase {
         return resumo(salvo);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ExercicioResumo desativar(Long id) {
         Exercicio exercicio = buscar(id);
         exigirOutroAtivoNoGrupo(exercicio);
@@ -72,7 +69,7 @@ public class CatalogoDeExerciciosUseCase {
         return resumo(salvo);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ExercicioResumo reativar(Long id) {
         Exercicio exercicio = buscar(id);
         exercicio.reativar();
@@ -81,7 +78,7 @@ public class CatalogoDeExerciciosUseCase {
         return resumo(salvo);
     }
 
-    @Transactional
+    @Transacional
     public void excluir(Long id) {
         Exercicio exercicio = buscar(id);
         if (fichas.usaExercicio(exercicio.nome())) {

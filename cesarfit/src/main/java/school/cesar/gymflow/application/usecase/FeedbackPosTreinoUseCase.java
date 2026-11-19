@@ -3,9 +3,7 @@ package school.cesar.gymflow.application.usecase;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
@@ -28,7 +26,6 @@ import school.cesar.gymflow.domain.treino.servico.AnaliseDeCarga;
  * - relato de dor publica o evento DorRelatada (o contexto Atendimento abre um chamado PRIORITARIO);
  * - qualquer alerta publica o evento ALERTA_DE_CARGA para a equipe.
  */
-@Service
 public class FeedbackPosTreinoUseCase {
 
     private final RepositorioDeFeedbacks feedbacks;
@@ -49,7 +46,7 @@ public class FeedbackPosTreinoUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.FeedbackResumo registrar(Long alunoId, Comandos.RegistrarFeedback comando) {
         LocalDate hoje = relogio.hoje();
         if (!presencas.existe(alunoId, hoje)) {
@@ -84,12 +81,12 @@ public class FeedbackPosTreinoUseCase {
         return resumo(salvo, analise);
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.FeedbackResumo> doAluno(Long alunoId) {
         return feedbacks.porAluno(alunoId).stream().map(f -> resumo(f, null)).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public boolean registradoHoje(Long alunoId) {
         return feedbacks.existe(alunoId, relogio.hoje());
     }

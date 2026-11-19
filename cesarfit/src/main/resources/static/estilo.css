@@ -174,11 +174,11 @@ td.acoes-tabela { white-space: nowrap; text-align: right; }
 /* espaco reservado: mantem os botoes na mesma posicao em todas as linhas */
 .btn-mini.espaco { visibility: hidden; }
 .acoes-fixas .btn-mini { min-width: 78px; text-align: center; }
-/* tabela de matriculas: dados em uma linha so; botoes em grade de 4 colunas */
+/* tabela de matriculas: dados em uma linha so; botoes em grade de 3 colunas */
 #tabela-matriculas td:not(.acoes-tabela) { white-space: nowrap; }
 #tabela-matriculas td.acoes-tabela { white-space: normal; }
-.acoes-grade { display: grid; grid-template-columns: repeat(4, auto); gap: 4px; justify-content: end; }
-.acoes-grade .btn-mini { margin: 0; text-align: center; }
+.acoes-grade { display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: end; }
+.acoes-grade .btn-mini { margin: 0; padding: 5px 7px; text-align: center; }
 .indicador strong.valor-dinheiro { font-size: 26px; white-space: nowrap; }
 tr.em-edicao td { background: #fff4ec; }
 td.sem-quebra { white-space: nowrap; }

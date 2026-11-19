@@ -4,9 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.operacao.model.OcorrenciaDeEquipamento;
@@ -23,7 +21,6 @@ import school.cesar.gymflow.domain.shared.evento.BarramentoDeEventos;
  * Funcionalidade: gestao de ocorrencias de equipamentos com severidade, SLA, pausa por peca,
  * reabertura, reincidencia e interdicao do equipamento.
  */
-@Service
 public class OcorrenciaDeEquipamentoUseCase {
 
     private final RepositorioDeOcorrencias ocorrencias;
@@ -39,7 +36,7 @@ public class OcorrenciaDeEquipamentoUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo registrar(Comandos.RegistrarOcorrencia comando) {
         LocalDateTime agora = relogio.agora();
         List<OcorrenciaDeEquipamento> doEquipamento = ocorrencias.todas().stream()
@@ -57,33 +54,33 @@ public class OcorrenciaDeEquipamentoUseCase {
         return salvar(nova, detalhe);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo iniciar(Long id) {
         OcorrenciaDeEquipamento o = buscar(id);
         o.iniciarAtendimento(relogio.agora());
         return salvar(o, "em andamento");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo aguardarPeca(Long id, String peca) {
         OcorrenciaDeEquipamento o = buscar(id);
         o.aguardarPeca(peca, relogio.agora());
         return salvar(o, "aguardando peca: " + o.pecaAguardada() + " (SLA pausado)");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo retomar(Long id) {
         OcorrenciaDeEquipamento o = buscar(id);
         o.retomar(relogio.agora());
         return salvar(o, "retomada (peca recebida)");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo resolver(Long id, String solucao) {
         return resolver(id, new Comandos.ResolverOcorrencia(solucao, null));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo resolver(Long id, Comandos.ResolverOcorrencia comando) {
         OcorrenciaDeEquipamento o = buscar(id);
         Dinheiro custo = comando.custo() == null || comando.custo().isBlank() ? null : Dinheiro.de(comando.custo());
@@ -92,7 +89,7 @@ public class OcorrenciaDeEquipamentoUseCase {
         return salvar(o, "resolvida " + (noPrazo ? "dentro" : "FORA") + " do SLA: " + o.solucao());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.OcorrenciaResumo reabrir(Long id, String motivo) {
         OcorrenciaDeEquipamento o = buscar(id);
         o.reabrir(motivo, relogio.agora());
@@ -100,7 +97,7 @@ public class OcorrenciaDeEquipamentoUseCase {
     }
 
     /** Fila de trabalho: atrasadas primeiro, depois por severidade e pelo prazo mais proximo. */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.OcorrenciaResumo> listar() {
         LocalDateTime agora = relogio.agora();
         return ocorrencias.todas().stream()
@@ -111,7 +108,7 @@ public class OcorrenciaDeEquipamentoUseCase {
                 .map(o -> resumo(o, agora)).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.OcorrenciaResumo detalhar(Long id) {
         return resumo(buscar(id), relogio.agora());
     }

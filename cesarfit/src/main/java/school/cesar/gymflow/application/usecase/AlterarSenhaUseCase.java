@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.domain.acesso.model.Credencial;
 import school.cesar.gymflow.domain.acesso.repositorio.RepositorioDeCredenciais;
@@ -14,7 +12,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: o aluno troca a propria senha de acesso. */
-@Service
 public class AlterarSenhaUseCase {
 
     private final RepositorioDeCredenciais credenciais;
@@ -30,7 +27,7 @@ public class AlterarSenhaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public void executar(Long alunoId, Comandos.AlterarSenha comando) {
         Aluno aluno = alunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));

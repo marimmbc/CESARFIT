@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.EtapaDeAviso;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -27,7 +25,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * Alem disso: no maximo um aviso por aluno por verificacao, e a matricula passa a VENCIDA
  * quando entra na fase de cobranca.
  */
-@Service
 public class NotificacaoDeVencimentoUseCase {
 
     private final RepositorioDeMatriculas matriculas;
@@ -45,7 +42,7 @@ public class NotificacaoDeVencimentoUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.VerificacaoDeVencimentos verificar(LocalDate hoje) {
         Map<Long, String> mapa = nomes.mapa();
         List<Respostas.NotificacaoResumo> enviados = new ArrayList<>();
@@ -76,7 +73,7 @@ public class NotificacaoDeVencimentoUseCase {
         return new Respostas.VerificacaoDeVencimentos(enviados.size(), enviados);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.NotificacaoResumo marcarComoLida(Long alunoId, Long notificacaoId) {
         NotificacaoDeVencimento n = notificacoes.porId(notificacaoId)
                 .filter(x -> x.alunoId().equals(alunoId))
@@ -85,13 +82,13 @@ public class NotificacaoDeVencimentoUseCase {
         return resumo(notificacoes.salvar(n), nomes.de(alunoId));
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.NotificacaoResumo> doAluno(Long alunoId) {
         String nome = nomes.de(alunoId);
         return notificacoes.porAluno(alunoId).stream().map(n -> resumo(n, nome)).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.NotificacaoResumo> todas() {
         Map<Long, String> mapa = nomes.mapa();
         return notificacoes.todas().stream().map(n -> resumo(n, mapa.getOrDefault(n.alunoId(), "-"))).toList();

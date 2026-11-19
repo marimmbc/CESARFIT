@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.stereotype.Component;
-
 import school.cesar.gymflow.domain.acesso.model.Perfil;
 import school.cesar.gymflow.domain.acesso.model.TentativasDeAcesso;
 import school.cesar.gymflow.domain.shared.Relogio;
@@ -16,7 +14,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * Mantem as sessoes abertas apos o login (token -> quem entrou) e as tentativas de acesso.
  * Uma sessao expira apos 30 minutos sem uso ou, no maximo, 8 horas depois do login.
  */
-@Component
 public class GerenciadorDeSessoes {
 
     public static final int HORAS_DE_VALIDADE = 8;

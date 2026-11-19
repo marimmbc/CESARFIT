@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -20,7 +18,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
  * Funcionalidade: estorno de pagamento (total ou parcial, com categoria, prazo de 90 dias,
  * regra de duplicidade e direito de arrependimento que cancela a matricula sem taxa).
  */
-@Service
 public class EstornarPagamentoUseCase {
 
     private final RepositorioDeMatriculas matriculas;
@@ -37,12 +34,12 @@ public class EstornarPagamentoUseCase {
     }
 
     /** Estorno integral, categoria OUTRO. */
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Long matriculaId, int indiceDoPagamento, String motivo) {
         return executar(matriculaId, indiceDoPagamento, new Comandos.EstornarPagamento(null, null, motivo));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Long matriculaId, int indiceDoPagamento, Comandos.EstornarPagamento comando) {
         Matricula matricula = matriculas.porId(matriculaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));

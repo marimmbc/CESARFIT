@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
@@ -20,7 +18,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  * O aluno monta o proprio treino sobre a ficha atual (divisao A/B/C): inclui exercicios ativos do
  * catalogo escolhendo series e repeticoes, ajusta a carga e remove exercicios.
  */
-@Service
 public class PersonalizarFichaUseCase {
 
     private final RepositorioDeFichas fichas;
@@ -34,7 +31,7 @@ public class PersonalizarFichaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.ExercicioResumo> catalogoAtivo() {
         return exercicios.ativos().stream()
                 .map(e -> new Respostas.ExercicioResumo(e.id(), e.nome(), e.grupoMuscular().name(),
@@ -42,7 +39,7 @@ public class PersonalizarFichaUseCase {
                 .toList();
     }
 
-    @Transactional
+    @Transacional
     public Respostas.FichaResumo adicionar(Long alunoId, Comandos.AdicionarExercicioNaFicha comando) {
         FichaDeTreino ficha = fichaAtual(alunoId);
         if (comando.exercicioId() == null) {
@@ -54,7 +51,7 @@ public class PersonalizarFichaUseCase {
         return salvar(ficha, exercicio.nome() + " incluido no treino " + comando.divisao().toUpperCase());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.FichaResumo ajustar(Long alunoId, int posicao, Comandos.AjustarItemDaFicha comando) {
         FichaDeTreino ficha = fichaAtual(alunoId);
         ficha.ajustarItem(posicao, comando.series(), comando.repeticoes());
@@ -62,7 +59,7 @@ public class PersonalizarFichaUseCase {
                 + comando.series() + "x" + comando.repeticoes());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.FichaResumo remover(Long alunoId, int posicao) {
         FichaDeTreino ficha = fichaAtual(alunoId);
         ItemDeTreino removido = ficha.removerItem(posicao);

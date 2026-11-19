@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeMatriculas;
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
@@ -10,7 +8,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: excluir matricula definitivamente (baixa - Integrante 4). */
-@Service
 public class ExcluirMatriculaUseCase {
 
     private final RepositorioDeMatriculas repositorioDeMatriculas;
@@ -22,7 +19,7 @@ public class ExcluirMatriculaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public void executar(Long matriculaId) {
         Matricula matricula = repositorioDeMatriculas.porId(matriculaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));

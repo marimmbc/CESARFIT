@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.time.LocalDate;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -23,7 +21,6 @@ import school.cesar.gymflow.domain.shared.evento.BarramentoDeEventos;
  * Caso de uso: cadastrar matricula associando aluno a um plano (media - Integrante 3).
  * O valor e calculado pela politica de preco (Strategy) do plano escolhido.
  */
-@Service
 public class MatricularAlunoUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -44,7 +41,7 @@ public class MatricularAlunoUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Comandos.SalvarMatricula comando) {
         if (comando == null || comando.alunoId() == null) {
             throw new RegraDeNegocioException("Selecione o aluno da matricula");

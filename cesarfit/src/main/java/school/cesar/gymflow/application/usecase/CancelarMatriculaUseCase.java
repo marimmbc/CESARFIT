@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.time.LocalDate;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -15,7 +13,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: cancelar a matricula com justificativa obrigatoria e data da solicitacao. */
-@Service
 public class CancelarMatriculaUseCase {
 
     private final RepositorioDeMatriculas repositorioDeMatriculas;
@@ -30,7 +27,7 @@ public class CancelarMatriculaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Long matriculaId, String justificativa) {
         Matricula matricula = repositorioDeMatriculas.porId(matriculaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));

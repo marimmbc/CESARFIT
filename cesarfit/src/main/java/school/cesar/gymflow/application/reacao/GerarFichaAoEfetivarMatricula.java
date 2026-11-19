@@ -2,15 +2,12 @@ package school.cesar.gymflow.application.reacao;
 
 import java.time.LocalDate;
 
-import org.springframework.stereotype.Component;
-
 import school.cesar.gymflow.application.usecase.GerarFichaDeTreinoUseCase;
 import school.cesar.gymflow.domain.matricula.evento.MatriculaEfetivada;
 import school.cesar.gymflow.domain.shared.evento.ManipuladorDeEvento;
 import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
 
 /** Contexto Treino reage a Matricula: todo aluno novo, com matricula vigente, recebe a ficha padrao A/B/C. */
-@Component
 public class GerarFichaAoEfetivarMatricula implements ManipuladorDeEvento<MatriculaEfetivada> {
 
     private final RepositorioDeFichas fichas;

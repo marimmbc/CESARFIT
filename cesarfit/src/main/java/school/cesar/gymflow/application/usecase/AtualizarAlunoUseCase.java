@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -14,7 +12,6 @@ import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Caso de uso: editar dados do aluno (complexidade media - Integrante 2). */
-@Service
 public class AtualizarAlunoUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -29,7 +26,7 @@ public class AtualizarAlunoUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AlunoResumo executar(Long alunoId, Comandos.SalvarAluno comando) {
         if (comando == null) {
             throw new RegraDeNegocioException("Dados do aluno nao informados");

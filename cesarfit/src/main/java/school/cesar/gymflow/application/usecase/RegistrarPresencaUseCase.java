@@ -1,12 +1,10 @@
 package school.cesar.gymflow.application.usecase;
 
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.shared.Relogio;
 
 import java.time.LocalDate;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeAlunos;
@@ -18,7 +16,6 @@ import school.cesar.gymflow.domain.treino.model.Presenca;
 import school.cesar.gymflow.domain.treino.repositorio.RepositorioDePresencas;
 
 /** Caso de uso: check-in do dia (uma presenca por dia, exige matricula vigente). */
-@Service
 public class RegistrarPresencaUseCase {
 
     private final RepositorioDePresencas presencas;
@@ -44,7 +41,7 @@ public class RegistrarPresencaUseCase {
      * Check-in do proprio dia. Regras: academia aberta (6h as 22h), matricula vigente, nao trancada,
      * sem pagamento pendente depois da tolerancia de 5 dias, e um check-in por dia.
      */
-    @Transactional
+    @Transacional
     public void executar(Long alunoId) {
         java.time.LocalDateTime agora = relogio.agora();
         if (agora.getHour() < ABERTURA || agora.getHour() >= FECHAMENTO) {
@@ -54,7 +51,7 @@ public class RegistrarPresencaUseCase {
     }
 
     /** Tambem usado pela carga inicial para montar o historico de demonstracao. */
-    @Transactional
+    @Transacional
     public void registrarEm(Long alunoId, LocalDate data) {
         Aluno aluno = alunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));

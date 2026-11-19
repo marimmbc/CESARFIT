@@ -1,7 +1,5 @@
 package school.cesar.gymflow.application.reacao;
 
-import org.springframework.stereotype.Component;
-
 import school.cesar.gymflow.domain.financeiro.evento.ContestacaoJulgadaProcedente;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.matricula.model.MotivoDeEstorno;
@@ -11,7 +9,6 @@ import school.cesar.gymflow.domain.shared.Relogio;
 import school.cesar.gymflow.domain.shared.evento.ManipuladorDeEvento;
 
 /** Contexto Matricula reage a Financeiro: contestacao procedente estorna o pagamento contestado. */
-@Component
 public class EstornarAoJulgarContestacao implements ManipuladorDeEvento<ContestacaoJulgadaProcedente> {
 
     private final RepositorioDeMatriculas matriculas;

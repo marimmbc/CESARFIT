@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -27,7 +25,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  * Consultas de leitura usadas pela interface grafica: listagens, pesquisas,
  * filtros, detalhe do aluno e o dashboard. Sempre leem os dados reais do banco.
  */
-@Service
 public class ServicoDeConsultas {
 
     private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -51,7 +48,7 @@ public class ServicoDeConsultas {
     }
 
     /** Listagem e pesquisa de alunos por nome, CPF, e-mail ou telefone (Integrante 1). */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.AlunoResumo> alunos(String busca) {
         Map<Long, List<Matricula>> porAluno = repositorioDeMatriculas.todas().stream()
                 .collect(Collectors.groupingBy(Matricula::alunoId));
@@ -69,7 +66,7 @@ public class ServicoDeConsultas {
     }
 
     /** Visualizacao das informacoes individuais de um aluno (Integrante 1). */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.AlunoDetalhe aluno(Long id) {
         Aluno aluno = repositorioDeAlunos.porId(id)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));
@@ -90,7 +87,7 @@ public class ServicoDeConsultas {
     }
 
     /** Consulta de matriculas com pesquisa por aluno e filtros de plano e situacao (Integrante 5). */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.MatriculaResumo> matriculas(Long alunoId, String busca, String plano, String status) {
         Map<Long, String> nomes = nomesDosAlunos();
         Map<Long, String> cpfs = repositorioDeAlunos.todos().stream()
@@ -110,7 +107,7 @@ public class ServicoDeConsultas {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.MatriculaResumo matricula(Long id) {
         Matricula m = repositorioDeMatriculas.porId(id)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));
@@ -119,7 +116,7 @@ public class ServicoDeConsultas {
     }
 
     /** Dashboard com dados reais (Integrante 6). */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.Painel painel() {
         Map<Long, String> nomes = nomesDosAlunos();
         List<Respostas.MatriculaResumo> todas = repositorioDeMatriculas.todas().stream()
@@ -142,7 +139,7 @@ public class ServicoDeConsultas {
                 todas.stream().limit(5).toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.FichaResumo> fichasDoAluno(Long alunoId) {
         return repositorioDeFichas.porAluno(alunoId).stream()
                 .map(GerarFichaDeTreinoUseCase::montarResumo)

@@ -5,9 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.financeiro.model.ContestacaoDeCobranca;
@@ -28,7 +26,6 @@ import school.cesar.gymflow.domain.shared.evento.BarramentoDeEventos;
  * SLA de analise, recurso unico julgado por outro analista e limite de contestacoes improcedentes.
  * O resultado procedente/parcial estorna o pagamento automaticamente (categoria CONTESTACAO_PROCEDENTE).
  */
-@Service
 public class ContestacaoDeCobrancaUseCase {
 
     private final RepositorioDeContestacoes contestacoes;
@@ -49,7 +46,7 @@ public class ContestacaoDeCobrancaUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo abrir(Long alunoId, Comandos.AbrirContestacao comando) {
         LocalDateTime agora = relogio.agora();
         Matricula matricula = matriculas.porId(comando.matriculaId())
@@ -80,33 +77,33 @@ public class ContestacaoDeCobrancaUseCase {
         return resumo(salva, nomes.de(alunoId), agora);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo pedirInformacoes(Long id, String pergunta) {
         ContestacaoDeCobranca c = buscar(id);
         c.pedirInformacoes(pergunta);
         return salvar(c, "Equipe pediu informacoes: " + c.pergunta());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo responder(Long alunoId, Long id, String resposta) {
         ContestacaoDeCobranca c = doAluno(alunoId, id);
         c.responder(resposta);
         return salvar(c, "Aluno respondeu: " + c.respostaDoAluno());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo recorrer(Long alunoId, Long id, String justificativa) {
         ContestacaoDeCobranca c = doAluno(alunoId, id);
         c.recorrer(justificativa, relogio.agora());
         return salvar(c, "Recurso aberto: " + c.justificativaDoRecurso());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo analisar(Long id, Comandos.AnalisarContestacao comando) {
         return analisar(id, comando, "Equipe");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.ContestacaoResumo analisar(Long id, Comandos.AnalisarContestacao comando, String analista) {
         ContestacaoDeCobranca contestacao = buscar(id);
         StatusContestacao resultado = comando.resultado() != null && !comando.resultado().isBlank()
@@ -122,14 +119,14 @@ public class ContestacaoDeCobrancaUseCase {
                 + " por " + contestacao.analista() + ": " + contestacao.parecer());
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.ContestacaoResumo> doAluno(Long alunoId) {
         String nome = nomes.de(alunoId);
         LocalDateTime agora = relogio.agora();
         return contestacoes.porAluno(alunoId).stream().map(c -> resumo(c, nome, agora)).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.ContestacaoResumo> todas() {
         Map<Long, String> mapa = nomes.mapa();
         LocalDateTime agora = relogio.agora();

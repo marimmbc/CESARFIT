@@ -1,10 +1,8 @@
 package school.cesar.gymflow.application.usecase;
 
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.domain.acesso.model.TentativasDeAcesso;
 import school.cesar.gymflow.domain.shared.Relogio;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
@@ -24,7 +22,6 @@ import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
  * Numero so com digitos = matricula de aluno; numero com letras (ex.: EQ001) = equipe.
  * Enquanto o aluno nao troca a senha, a senha de primeiro acesso sao os 6 primeiros digitos do CPF.
  */
-@Service
 public class EntrarNoSistemaUseCase {
 
     static final String CREDENCIAIS_INVALIDAS = "Numero da matricula ou senha invalidos";
@@ -56,7 +53,7 @@ public class EntrarNoSistemaUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.Sessao executar(Comandos.Entrar comando) {
         String numero = comando.numero() == null ? "" : comando.numero().trim();
         String senha = comando.senha() == null ? "" : comando.senha();

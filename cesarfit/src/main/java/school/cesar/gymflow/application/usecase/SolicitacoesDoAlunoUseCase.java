@@ -1,12 +1,9 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Respostas;
 
 /** Junta, para a area do aluno, os avisos, feedbacks e solicitacoes dele. */
-@Service
 public class SolicitacoesDoAlunoUseCase {
 
     private final NotificacaoDeVencimentoUseCase avisos;
@@ -28,7 +25,7 @@ public class SolicitacoesDoAlunoUseCase {
         this.contestacoes = contestacoes;
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public Respostas.SolicitacoesDoAluno executar(Long alunoId) {
         return new Respostas.SolicitacoesDoAluno(avisos.doAluno(alunoId), feedbacks.doAluno(alunoId),
                 feedbacks.registradoHoje(alunoId), avaliacoes.doAluno(alunoId), substituicoes.doAluno(alunoId),

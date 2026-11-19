@@ -2,9 +2,7 @@ package school.cesar.gymflow.application.usecase;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.domain.acesso.repositorio.RepositorioDeCredenciais;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
@@ -23,7 +21,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDePresencas;
  * de acesso) e removido junto,
  * para nao deixar registros orfaos no banco.
  */
-@Service
 public class ExcluirAlunoUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -47,7 +44,7 @@ public class ExcluirAlunoUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public void executar(Long alunoId) {
         Aluno aluno = repositorioDeAlunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));

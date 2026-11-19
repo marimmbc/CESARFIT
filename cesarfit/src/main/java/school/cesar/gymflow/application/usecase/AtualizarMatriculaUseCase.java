@@ -1,8 +1,6 @@
 package school.cesar.gymflow.application.usecase;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
@@ -22,7 +20,6 @@ import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
  * Permite trocar aluno, plano, data de inicio e situacao. Sempre recalcula o valor
  * pelo plano escolhido (Mensal = R$ 120,00 / Anual = R$ 1320,00) e SALVA o novo valor.
  */
-@Service
 public class AtualizarMatriculaUseCase {
 
     private final RepositorioDeAlunos repositorioDeAlunos;
@@ -40,7 +37,7 @@ public class AtualizarMatriculaUseCase {
         this.publicador = publicador;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.MatriculaResumo executar(Long matriculaId, Comandos.SalvarMatricula comando) {
         if (comando == null || comando.alunoId() == null) {
             throw new RegraDeNegocioException("Selecione o aluno da matricula");

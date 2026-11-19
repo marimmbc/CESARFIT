@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.atendimento.model.SolicitacaoDeAtendimento;
@@ -28,7 +26,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  * - nao e permitido assumir um NORMAL enquanto houver ALTA aguardando;
  * - cada instrutor atende no maximo 3 alunos ao mesmo tempo (vale tambem para transferencias).
  */
-@Service
 public class AtendimentoDoInstrutorUseCase {
 
     public static final int MAX_SIMULTANEOS_POR_INSTRUTOR = 3;
@@ -52,7 +49,7 @@ public class AtendimentoDoInstrutorUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo abrir(Long alunoId, Comandos.AbrirAtendimento comando) {
         FichaDeTreino ficha = fichas.porAluno(alunoId).stream().findFirst()
                 .orElseThrow(() -> new RegraDeNegocioException("Voce precisa ter uma ficha de treino para pedir atendimento"));
@@ -69,7 +66,7 @@ public class AtendimentoDoInstrutorUseCase {
      * Aberto pelo sistema (ex.: feedback pos-treino com relato de dor). Nao abre se o aluno ja tem
      * atendimento em aberto ou ainda nao tem ficha.
      */
-    @Transactional
+    @Transacional
     public Optional<Respostas.AtendimentoResumo> abrirAutomatico(Long alunoId, String motivo) {
         Optional<FichaDeTreino> ficha = fichas.porAluno(alunoId).stream().findFirst();
         if (ficha.isEmpty() || solicitacoes.atendimentosDoAluno(alunoId).stream().anyMatch(SolicitacaoDeAtendimento::emAberto)) {
@@ -79,7 +76,7 @@ public class AtendimentoDoInstrutorUseCase {
                 TipoDeAtendimento.DOR_OU_LESAO, true, relogio.agora()), "aberto automaticamente (ALTA)"));
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo assumir(Long id, String instrutor) {
         SolicitacaoDeAtendimento s = buscar(id);
         List<SolicitacaoDeAtendimento> todos = solicitacoes.atendimentos();
@@ -92,7 +89,7 @@ public class AtendimentoDoInstrutorUseCase {
         return salvar(s, "assumido por " + s.instrutor() + " apos " + s.minutosDeEspera(relogio.agora()) + " min");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo transferir(Long id, String novoInstrutor) {
         SolicitacaoDeAtendimento s = buscar(id);
         String anterior = s.instrutor();
@@ -101,21 +98,21 @@ public class AtendimentoDoInstrutorUseCase {
         return salvar(s, "transferido de " + anterior + " para " + s.instrutor());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo concluir(Long id, String orientacao) {
         SolicitacaoDeAtendimento s = buscar(id);
         s.concluir(orientacao, relogio.agora());
         return salvar(s, "concluido: " + s.orientacao());
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo cancelar(Long alunoId, Long id) {
         SolicitacaoDeAtendimento s = doAluno(alunoId, id);
         s.cancelar();
         return salvar(s, "cancelado pelo aluno");
     }
 
-    @Transactional
+    @Transacional
     public Respostas.AtendimentoResumo avaliar(Long alunoId, Long id, Comandos.AvaliarAtendimento comando) {
         SolicitacaoDeAtendimento s = doAluno(alunoId, id);
         if (comando.nota() == null) {
@@ -125,7 +122,7 @@ public class AtendimentoDoInstrutorUseCase {
         return salvar(s, "avaliado com nota " + s.nota() + "/5");
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.AtendimentoResumo> doAluno(Long alunoId) {
         String nome = nomes.de(alunoId);
         List<SolicitacaoDeAtendimento> fila = fila();
@@ -133,7 +130,7 @@ public class AtendimentoDoInstrutorUseCase {
     }
 
     /** Lista da equipe: primeiro a fila de espera (na ordem de atendimento), depois os demais. */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.AtendimentoResumo> todos() {
         Map<Long, String> mapa = nomes.mapa();
         List<SolicitacaoDeAtendimento> fila = fila();

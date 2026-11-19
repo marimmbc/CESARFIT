@@ -69,7 +69,10 @@ const ACENTOS_CATALOGO = [
   [/\bMatricula\b/g, 'Matrícula'], [/\bmatricula\b/g, 'matrícula'], [/\brecepcao\b/g, 'recepção'],
   [/\bavaliacao\b/g, 'avaliação'], [/\bvigencia\b/g, 'vigência'], [/\bsolicitacao\b/g, 'solicitação'],
   [/\bOla\b/g, 'Olá'], [/\bHIPERTROFIA\b/g, 'Hipertrofia'], [/\bEMAGRECIMENTO\b/g, 'Emagrecimento'],
-  [/\bCONDICIONAMENTO\b/g, 'Condicionamento']
+  [/\bCONDICIONAMENTO\b/g, 'Condicionamento'], [/\bCartao de credito\b/g, 'Cartão de crédito'],
+  [/\bCartao de debito\b/g, 'Cartão de débito'], [/\bSubstituicao\b/g, 'Substituição'], [/\bAvaliacao\b/g, 'Avaliação'],
+  [/\bfisica\b/g, 'física'], [/\bCobranca\b/g, 'Cobrança'], [/\bContestacao\b/g, 'Contestação'],
+  [/\bDOR_OU_LESAO\b/g, 'dor ou lesão'], [/\bpos-treino\b/g, 'pós-treino']
 ];
 function acentuar(texto) {
   return ACENTOS_CATALOGO.reduce((t, [de, para]) => t.replace(de, para), String(texto ?? ''));
@@ -658,7 +661,7 @@ function desenharFicha() {
   const divisoes = ['A', 'B', 'C'].filter(d => ficha.itens.some(i => (i.divisao || 'A') === d));
   alvo.innerHTML = `
     <div class="cartao">
-      <h3>${esc(ficha.objetivo)} · divisão ${divisoes.join(' / ')}</h3>
+      <h3>${esc(NOME_OBJETIVO[ficha.objetivo] || ficha.objetivo)} · divisão ${divisoes.join(' / ')}</h3>
       <div class="linha-dado"><span>Válida até</span><span>${dataBR(ficha.validaAte)}</span></div>
       <div class="linha-dado"><span>Exercícios concluídos pelo aluno</span><strong>${ficha.itens.length - ficha.pendentes} de ${ficha.itens.length}</strong></div>
     </div>
@@ -668,7 +671,7 @@ function desenharFicha() {
         <div class="item ${i.concluido ? 'feito' : ''}">
           <div>
             <div class="nome-ex">${esc(acentuar(i.exercicio))}</div>
-            <div class="grupo">${esc(i.grupoMuscular)}</div>
+            <div class="grupo">${esc(NOME_GRUPO[i.grupoMuscular] || i.grupoMuscular)}</div>
           </div>
           <span class="carga">${i.series}x${i.repeticoes} · ${i.descansoEmSegundos}s</span>
           ${i.concluido ? '<span class="etiqueta ATIVA">Feito</span>' : ''}

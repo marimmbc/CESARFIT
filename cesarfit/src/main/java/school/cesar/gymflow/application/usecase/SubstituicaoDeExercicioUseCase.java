@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import school.cesar.gymflow.application.Transacional;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.dto.Respostas;
 import school.cesar.gymflow.domain.atendimento.model.MotivoDeSubstituicao;
@@ -35,7 +33,6 @@ import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
  *   (RepositorioDeEquipamentosIndisponiveis), alimentada pelos eventos do contexto Operacao;
  * - fila da equipe ordenada por prioridade (dor/lesao primeiro) e antiguidade; pedidos expiram em 7 dias.
  */
-@Service
 public class SubstituicaoDeExercicioUseCase {
 
     public static final int MAX_TROCAS_POR_FICHA = 3;
@@ -62,7 +59,7 @@ public class SubstituicaoDeExercicioUseCase {
         this.relogio = relogio;
     }
 
-    @Transactional
+    @Transacional
     public Respostas.SubstituicaoResumo solicitar(Long alunoId, Comandos.SolicitarSubstituicao comando) {
         LocalDateTime agora = relogio.agora();
         FichaDeTreino ficha = fichas.porId(comando.fichaId())
@@ -102,7 +99,7 @@ public class SubstituicaoDeExercicioUseCase {
         return resumo(salva, nomes.de(alunoId), agora);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.SubstituicaoResumo aprovar(Long id, Comandos.AprovarSubstituicao comando) {
         LocalDateTime agora = relogio.agora();
         SolicitacaoDeSubstituicao s = buscar(id);
@@ -134,7 +131,7 @@ public class SubstituicaoDeExercicioUseCase {
         return efetivar(s, ficha, novo, comando.observacao(), false);
     }
 
-    @Transactional
+    @Transacional
     public Respostas.SubstituicaoResumo rejeitar(Long id, String justificativa) {
         SolicitacaoDeSubstituicao s = buscar(id);
         s.rejeitar(justificativa, relogio.agora());
@@ -143,7 +140,7 @@ public class SubstituicaoDeExercicioUseCase {
         return resumo(salva, nomes.de(salva.alunoId()), relogio.agora());
     }
 
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.SubstituicaoResumo> doAluno(Long alunoId) {
         String nome = nomes.de(alunoId);
         LocalDateTime agora = relogio.agora();
@@ -151,7 +148,7 @@ public class SubstituicaoDeExercicioUseCase {
     }
 
     /** Fila da equipe: pendentes primeiro, por prioridade da categoria e depois pelo pedido mais antigo. */
-    @Transactional(readOnly = true)
+    @Transacional(somenteLeitura = true)
     public List<Respostas.SubstituicaoResumo> todas() {
         Map<Long, String> mapa = nomes.mapa();
         LocalDateTime agora = relogio.agora();
