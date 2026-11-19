@@ -1,0 +1,11 @@
+# Saidas de compilacao (Maven / IDE)
+target/
+target_classes/
+target_test-classes/
+*.class
+
+# Sistema operacional e IDEs
+.DS_Store
+.idea/
+*.iml
+.vscode/

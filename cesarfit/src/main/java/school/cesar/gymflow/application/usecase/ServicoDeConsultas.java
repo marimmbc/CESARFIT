@@ -62,7 +62,7 @@ public class ServicoDeConsultas {
                 .filter(a -> termo.isEmpty()
                         || normalizar(a.nome()).contains(termo)
                         || a.email().contains(termo)
-                        || (!digitos.isEmpty() && (a.cpf().numero().contains(digitos)
+                        || (!digitos.isEmpty() && (a.cpf().numero().equals(digitos)
                                 || a.telefone().contains(digitos))))
                 .map(a -> Resumos.aluno(a, porAluno.getOrDefault(a.id(), List.of())))
                 .toList();
@@ -104,7 +104,7 @@ public class ServicoDeConsultas {
                 .map(m -> Resumos.matricula(m, nomes.getOrDefault(m.alunoId(), "(aluno removido)")))
                 .filter(r -> termo.isEmpty() || normalizar(r.alunoNome()).contains(termo)
                         || String.valueOf(r.id()).equals(termo)
-                        || (digitos.length() >= 3 && cpfs.getOrDefault(r.alunoId(), "").contains(digitos)))
+                        || (!digitos.isEmpty() && cpfs.getOrDefault(r.alunoId(), "").equals(digitos)))
                 .filter(r -> vazio(plano) || r.plano().equalsIgnoreCase(plano))
                 .filter(r -> vazio(status) || r.status().equalsIgnoreCase(status))
                 .toList();

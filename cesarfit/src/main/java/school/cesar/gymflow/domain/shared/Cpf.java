@@ -19,6 +19,9 @@ public final class Cpf {
         if (digitos.length() != 11) {
             throw new RegraDeNegocioException("CPF deve conter 11 digitos: " + bruto);
         }
+        if (digitos.chars().distinct().count() == 1) {
+            throw new RegraDeNegocioException("CPF invalido (sequencia repetida): " + bruto);
+        }
         return new Cpf(digitos);
     }
 

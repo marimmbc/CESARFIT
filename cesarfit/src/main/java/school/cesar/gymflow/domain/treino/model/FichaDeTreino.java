@@ -23,10 +23,17 @@ public class FichaDeTreino implements Iterable<ItemDeTreino> {
     private final LocalDate criadaEm;
     private final LocalDate validaAte;
     private final List<ItemDeTreino> itens = new ArrayList<>();
+    private StatusFicha status;
 
     public FichaDeTreino(Long id, Long alunoId, Objetivo objetivo,
                          LocalDate criadaEm, LocalDate validaAte, List<ItemDeTreino> itens) {
+        this(id, alunoId, objetivo, criadaEm, validaAte, itens, StatusFicha.ATIVA);
+    }
+
+    public FichaDeTreino(Long id, Long alunoId, Objetivo objetivo, LocalDate criadaEm,
+                         LocalDate validaAte, List<ItemDeTreino> itens, StatusFicha status) {
         this.id = id;
+        this.status = status == null ? StatusFicha.ATIVA : status;
         this.alunoId = alunoId;
         this.objetivo = objetivo;
         this.criadaEm = criadaEm;
@@ -34,6 +41,22 @@ public class FichaDeTreino implements Iterable<ItemDeTreino> {
         if (itens != null) {
             this.itens.addAll(itens);
         }
+    }
+
+    /** Uma nova ficha substitui a atual: a anterior e arquivada e deixa de ser a ficha do aluno. */
+    public void arquivar() {
+        if (status == StatusFicha.ARQUIVADA) {
+            throw new RegraDeNegocioException("A ficha ja esta arquivada");
+        }
+        status = StatusFicha.ARQUIVADA;
+    }
+
+    public boolean ativa() {
+        return status == StatusFicha.ATIVA;
+    }
+
+    public StatusFicha status() {
+        return status;
     }
 
     public void concluirItem(int posicao) {

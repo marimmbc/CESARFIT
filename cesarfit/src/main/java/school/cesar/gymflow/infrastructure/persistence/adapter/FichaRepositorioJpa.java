@@ -29,7 +29,7 @@ public class FichaRepositorioJpa implements RepositorioDeFichas {
                         i.repeticoes(), i.descansoEmSegundos(), i.concluido()).comDivisao(i.divisao()))
                 .toList();
         FichaEntity entidade = new FichaEntity(ficha.id(), ficha.alunoId(), ficha.objetivo(),
-                ficha.criadaEm(), ficha.validaAte(), itens);
+                ficha.criadaEm(), ficha.validaAte(), itens, ficha.status());
         return paraDominio(jpa.save(entidade));
     }
 
@@ -64,6 +64,6 @@ public class FichaRepositorioJpa implements RepositorioDeFichas {
             return item;
         }).toList();
         return new FichaDeTreino(e.getId(), e.getAlunoId(), e.getObjetivo(),
-                e.getCriadaEm(), e.getValidaAte(), itens);
+                e.getCriadaEm(), e.getValidaAte(), itens, e.getStatus());
     }
 }

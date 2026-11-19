@@ -272,6 +272,7 @@ function editarAluno(id) {
   const form = document.getElementById('form-aluno');
   form.nome.value = a.nome;
   form.cpf.value = a.cpf;
+  form.cpf.disabled = true; // CPF nao pode ser trocado na edicao
   form.telefone.value = a.telefone;
   form.email.value = a.email;
   form.dataDeNascimento.value = a.dataDeNascimento;
@@ -293,6 +294,7 @@ function editarAluno(id) {
 function sairEdicaoAluno() {
   estado.editandoAlunoId = null;
   document.getElementById('form-aluno').reset();
+  document.getElementById('form-aluno').cpf.disabled = false;
   document.getElementById('titulo-form-aluno').textContent = 'Cadastrar aluno';
   document.getElementById('aviso-edicao-aluno').classList.add('oculto');
   document.getElementById('btn-salvar-aluno').textContent = 'Cadastrar aluno';

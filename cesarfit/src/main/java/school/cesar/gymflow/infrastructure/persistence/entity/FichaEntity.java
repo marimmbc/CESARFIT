@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import school.cesar.gymflow.domain.matricula.model.Objetivo;
+import school.cesar.gymflow.domain.treino.model.StatusFicha;
 
 /** Mapeamento objeto-relacional do agregado FichaDeTreino. */
 @Entity
@@ -41,6 +42,10 @@ public class FichaEntity {
     @Column(name = "valida_ate", nullable = false)
     private LocalDate validaAte;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private StatusFicha status = StatusFicha.ATIVA;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_treino", joinColumns = @JoinColumn(name = "ficha_id"))
     @OrderColumn(name = "posicao")
@@ -50,8 +55,9 @@ public class FichaEntity {
     }
 
     public FichaEntity(Long id, Long alunoId, Objetivo objetivo, LocalDate criadaEm,
-                       LocalDate validaAte, List<ItemEmbeddable> itens) {
+                       LocalDate validaAte, List<ItemEmbeddable> itens, StatusFicha status) {
         this.id = id;
+        this.status = status == null ? StatusFicha.ATIVA : status;
         this.alunoId = alunoId;
         this.objetivo = objetivo;
         this.criadaEm = criadaEm;
@@ -77,6 +83,10 @@ public class FichaEntity {
 
     public LocalDate getValidaAte() {
         return validaAte;
+    }
+
+    public StatusFicha getStatus() {
+        return status == null ? StatusFicha.ATIVA : status;
     }
 
     public List<ItemEmbeddable> getItens() {

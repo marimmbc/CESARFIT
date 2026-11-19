@@ -55,6 +55,7 @@ public class GerarFichaDeTreinoUseCase {
 
         GeradorDeFicha gerador = FabricaDeGerador.para(aluno.objetivo());
         FichaDeTreino ficha = gerador.gerar(aluno, repositorioDeExercicios.ativos());
+        arquivarFichaAtiva(alunoId);
         FichaDeTreino salva = repositorioDeFichas.salvar(ficha);
 
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.FICHA_GERADA,
@@ -62,6 +63,16 @@ public class GerarFichaDeTreinoUseCase {
                 "Ficha de " + aluno.objetivo() + " gerada para " + aluno.nome()));
 
         return montarResumo(salva);
+    }
+
+    /** O aluno so tem uma ficha ATIVA: a anterior e arquivada antes de salvar a nova. */
+    private void arquivarFichaAtiva(Long alunoId) {
+        repositorioDeFichas.porAluno(alunoId).stream()
+                .filter(FichaDeTreino::ativa)
+                .forEach(anterior -> {
+                    anterior.arquivar();
+                    repositorioDeFichas.salvar(anterior);
+                });
     }
 
     static Respostas.FichaResumo montarResumo(FichaDeTreino ficha) {

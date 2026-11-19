@@ -36,12 +36,9 @@ public class AtualizarAlunoUseCase {
         }
         Aluno aluno = repositorioDeAlunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));
-        Cpf cpf = Cpf.de(comando.cpf());
-        repositorioDeAlunos.porCpf(cpf)
-                .filter(outro -> !outro.id().equals(alunoId))
-                .ifPresent(outro -> {
-                    throw new RegraDeNegocioException("O CPF " + cpf + " ja pertence a " + outro.nome());
-                });
+        // O CPF identifica o aluno e nao pode ser trocado: usa sempre o ja cadastrado
+        // e ignora o CPF enviado no comando.
+        Cpf cpf = aluno.cpf();
         repositorioDeAlunos.porEmail(comando.email())
                 .filter(outro -> !outro.id().equals(alunoId))
                 .ifPresent(outro -> {

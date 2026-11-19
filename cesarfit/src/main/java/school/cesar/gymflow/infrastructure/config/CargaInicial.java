@@ -79,7 +79,7 @@ public class CargaInicial implements CommandLineRunner {
             for (int dias = 3; dias >= 1; dias--) {
                 registrarPresenca.registrarEm(ana.id(), LocalDate.now().minusDays(dias));
             }
-            LOG.info("Demo: aluna Ana Lima -> matricula {} / senha 111222 | equipe -> EQ001 / cesarfit",
+            LOG.info("Demo: aluna Ana Lima -> matricula {} | equipe -> EQ001 (senhas no README)",
                     matricula.id());
         }
     }

@@ -30,11 +30,18 @@ Modelado com DDD e arquitetura limpa. Interface web em HTML/CSS/JS puro servida 
 O banco H2 e em memoria: ao reiniciar, os dados voltam ao estado inicial
 (2 alunos de demonstracao: Ana Lima e Bruno Souza).
 
-### Testes automatizados (BDD)
+Logins de demonstracao (as senhas nao sao mais impressas no log):
+- **Aluna Ana Lima:** numero da matricula (aparece no log, normalmente `1`) / senha `111222`
+- **Equipe:** `EQ001` / senha `cesarfit`
+
+### Testes automatizados (BDD + unitarios)
 ```bash
 mvn test        # relatorio em target/cucumber-report.html
 ```
 141 cenarios em `src/test/resources/features` (alunos, matriculas, treinos, operacao, financeiro, solicitacoes...).
+Cada cenario comeca com o banco limpo (so o catalogo padrao de exercicios).
+Testes unitarios de dominio em `src/test/java/school/cesar/gymflow/domain` (`CpfTest`, `DinheiroTest`,
+`TextoTest`, `MatriculaTest`, `PagamentoTest`, `FichaDeTreinoTest`).
 O relogio dos testes e controlavel (`RelogioDeTeste`), entao prazos e SLAs sao testados avancando o tempo.
 
 ### PostgreSQL (opcional)

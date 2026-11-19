@@ -4,14 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import io.cucumber.java.Before;
 import io.cucumber.java.pt.Entao;
 import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.application.usecase.CadastrarAlunoUseCase;
 import school.cesar.gymflow.domain.matricula.model.Objetivo;
+import school.cesar.gymflow.infrastructure.config.CatalogoInicial;
 
 /** Steps reutilizados por mais de uma funcionalidade. */
 public class PassosComuns {
@@ -22,9 +25,29 @@ public class PassosComuns {
     @Autowired
     private CadastrarAlunoUseCase cadastrarAluno;
 
-    @Before
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @Autowired
+    private CatalogoInicial catalogoInicial;
+
+    /**
+     * Cada cenario comeca com o banco vazio (so com o catalogo padrao de exercicios),
+     * para que dados gravados por um cenario nao interfiram no proximo.
+     */
+    @Before(order = 0)
     public void prepararCenario() {
         contexto.limpar();
+        List<String> tabelas = jdbc.queryForList(
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'PUBLIC'"
+                        + " AND TABLE_TYPE = 'BASE TABLE'", String.class);
+        jdbc.execute("SET REFERENTIAL_INTEGRITY FALSE");
+        try {
+            tabelas.forEach(t -> jdbc.execute("TRUNCATE TABLE \"" + t + "\" RESTART IDENTITY"));
+        } finally {
+            jdbc.execute("SET REFERENTIAL_INTEGRITY TRUE");
+        }
+        catalogoInicial.run();
     }
 
     Long cadastrar(String nome, String cpf, Objetivo objetivo) {
